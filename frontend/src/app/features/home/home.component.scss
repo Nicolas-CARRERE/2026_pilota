@@ -1,0 +1,81 @@
+.lead {
+  font-size: 1.125rem;
+  color: var(--pelota-gray-700);
+  margin-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 2.5rem;
+  h2 {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--pelota-green);
+    color: var(--pelota-gray-900);
+  }
+}
+
+.game-cards {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.game-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  .game-date {
+    font-size: 0.875rem;
+    color: var(--pelota-gray-700);
+  }
+  .game-versus {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    .vs {
+      color: var(--pelota-red);
+      font-weight: 700;
+    }
+  }
+  .score {
+    font-weight: 600;
+    color: var(--pelota-green);
+  }
+  .meta {
+    grid-column: 1 / -1;
+    font-size: 0.875rem;
+    color: var(--pelota-gray-700);
+  }
+}
+
+.links-section .link-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.link-tile {
+  display: block;
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  &:hover {
+    text-decoration: none;
+    border-color: var(--pelota-green);
+  }
+  .link-tile-title {
+    display: block;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--pelota-green);
+    margin-bottom: 0.25rem;
+  }
+  .link-tile-desc {
+    font-size: 0.875rem;
+    color: var(--pelota-gray-700);
+  }
+}

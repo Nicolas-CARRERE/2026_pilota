@@ -1,0 +1,50 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.championship-detail-card {
+  max-width: 720px;
+  .meta {
+    color: var(--pelota-gray-700);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pelota-gray-200);
+  h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+  }
+}
+
+.game-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.game-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--pelota-gray-100);
+  font-size: 0.9375rem;
+  align-items: center;
+  .game-date {
+    color: var(--pelota-gray-700);
+  }
+  .game-link {
+    &:hover {
+      color: var(--pelota-green);
+    }
+  }
+  .game-score {
+    font-weight: 600;
+    color: var(--pelota-green);
+  }
+}

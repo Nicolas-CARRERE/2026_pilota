@@ -1,0 +1,51 @@
+<div class="container">
+  @if (loading) {
+    <app-loading></app-loading>
+  } @else if (error) {
+    <div class="error-message">{{ error }}</div>
+    <p><a routerLink="/games" class="btn btn--outline">Retour aux résultats</a></p>
+  } @else if (game) {
+    <p><a routerLink="/games" class="back-link">← Retour aux résultats</a></p>
+    <article class="card game-detail-card">
+      <h1>Détail de la partie</h1>
+      <p class="game-date">{{ game.startDate | formatDate }}</p>
+      <p class="game-status">Statut : {{ game.status }}</p>
+      <div class="versus-block">
+        <div class="player-block">
+          <span class="player-label">Côté 1 :</span>
+          <span class="player-name">{{ gameSides(game).side1 }}</span>
+        </div>
+        <span class="vs">–</span>
+        <div class="player-block">
+          <span class="player-label">Côté 2 :</span>
+          <span class="player-name">{{ gameSides(game).side2 }}</span>
+        </div>
+      </div>
+      @if (game.gameScores.length) {
+        <div class="scores">
+          <strong>Score :</strong>
+          @for (s of game.gameScores; track s.id) {
+            <span class="raw-score">{{ s.rawScore }}</span>
+          }
+        </div>
+      }
+      @if (game.winner) {
+        <p class="winner">Vainqueur : {{ playerName(game.winner) }}</p>
+      }
+      @if (game.competition) {
+        <p class="meta">
+          Compétition : {{ game.competition.discipline?.name }}
+          @if (game.competition.organizer) {
+            ({{ game.competition.organizer.name }})
+          }
+          @if (game.phase ?? game.competition.phase; as phaseLabel) {
+            – {{ phaseLabel }}
+          }
+        </p>
+      }
+      @if (game.court) {
+        <p class="meta">Terrain : {{ game.court.name }}, {{ game.court.city }}</p>
+      }
+    </article>
+  }
+</div>

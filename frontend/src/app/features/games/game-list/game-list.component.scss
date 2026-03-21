@@ -1,0 +1,131 @@
+.lead {
+  margin-bottom: 1.5rem;
+  color: var(--pelota-gray-700);
+}
+
+.filters {
+  margin-bottom: 1.5rem;
+  h3 {
+    margin-bottom: 0.75rem;
+  }
+}
+
+.filters--compact .filters-form {
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.filters-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  .filter-label {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pelota-gray-700);
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  select {
+    padding: 0.35rem 0.5rem;
+    min-width: 140px;
+    max-width: 200px;
+    border: 1px solid var(--pelota-gray-200);
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
+  .filter-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--pelota-gray-700);
+    background: var(--pelota-gray-100);
+    border-radius: 4px;
+  }
+  .btn--compact {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+.game-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.game-card-link {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  &:hover {
+    text-decoration: none;
+    color: var(--pelota-green);
+  }
+}
+
+.game-date {
+  font-size: 0.875rem;
+  color: var(--pelota-gray-700);
+}
+
+.game-versus .vs {
+  color: var(--pelota-red);
+  font-weight: 700;
+}
+
+.score {
+  font-weight: 600;
+  color: var(--pelota-green);
+}
+
+.game-phase {
+  font-size: 0.75rem;
+  color: var(--pelota-gray-700);
+  padding: 0.2rem 0.4rem;
+  background: var(--pelota-gray-100);
+  border-radius: 4px;
+}
+
+.status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  &.status-completed {
+    background: var(--pelota-gray-200);
+  }
+  &.status-scheduled,
+  &.status-in_progress {
+    background: rgba(0, 140, 69, 0.15);
+    color: var(--pelota-green);
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  .pagination-info {
+    font-size: 0.875rem;
+    color: var(--pelota-gray-700);
+  }
+}

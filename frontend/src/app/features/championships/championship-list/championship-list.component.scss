@@ -1,0 +1,40 @@
+.lead {
+  margin-bottom: 1.5rem;
+  color: var(--pelota-gray-700);
+}
+
+.championship-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.championship-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+  &:hover {
+    text-decoration: none;
+    color: var(--pelota-green);
+  }
+}
+
+.championship-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.championship-meta {
+  font-size: 0.875rem;
+  color: var(--pelota-gray-700);
+}
+
+.championship-count {
+  font-size: 0.8125rem;
+  color: var(--pelota-green);
+}

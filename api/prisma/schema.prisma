@@ -1,0 +1,306 @@
+// Pelota schema - Node.js owns the database
+// Matches reference models from FastAPI/backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PELOTA_POSTGRES_DATABASE_URL")
+}
+
+// === Reference tables (sport structure) ===
+
+model Modality {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  disciplines Discipline[]
+}
+
+model AgeCategory {
+  id          String   @id @default(uuid())
+  name        String
+  shortName   String?  @map("short_name")
+  minAge      Int?     @map("min_age")
+  maxAge      Int?     @map("max_age")
+  gender      String?
+  description String?
+  disciplines Discipline[]
+  competitions Competition[]
+}
+
+model CompetitionGender {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @db.VarChar(2)
+  description String?
+  competitions Competition[]
+}
+
+model Discipline {
+  id              String   @id @default(uuid())
+  name            String
+  modalityId      String   @map("modality_id")
+  gender          String?
+  ageCategoryId   String?   @map("age_category_id")
+  description     String?
+  modality        Modality @relation(fields: [modalityId], references: [id])
+  ageCategory     AgeCategory? @relation(fields: [ageCategoryId], references: [id])
+  competitions    Competition[]
+  teams           Team[]
+}
+
+model CompetitionSeries {
+  id               String   @id @default(uuid())
+  code             String   @unique
+  name             String
+  description      String?
+  competitionType  String   @map("competition_type") // league, tournament
+  competitions     Competition[]
+}
+
+model Organizer {
+  id          String   @id @default(uuid())
+  name        String
+  shortName   String?  @map("short_name")
+  country     String?
+  type        String   // committee, league, federation, club
+  foundedYear Int?     @map("founded_year")
+  website     String?
+  isActive    Boolean  @default(true) @map("is_active")
+  competitions Competition[]
+}
+
+model CompetitionYear {
+  id         String   @id @default(uuid())
+  year       Int
+  isCurrent  Boolean  @default(false) @map("is_current")
+  competitions Competition[]
+}
+
+// === Core entities ===
+
+model Club {
+  id          String   @id @default(uuid())
+  name        String
+  shortName   String?  @map("short_name")
+  country     String?
+  region      String?
+  foundedYear Int?     @map("founded_year")
+  website     String?
+  isActive    Boolean  @default(true) @map("is_active")
+  playerClubHistory PlayerClubHistory[]
+  teams       Team[]
+}
+
+model Player {
+  id            String   @id @default(uuid())
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  nickname      String?
+  license       String?  @db.VarChar(32)
+  birthDate     DateTime? @db.Date @map("birth_date")
+  country       String?
+  heightCm      Int?     @map("height_cm")
+  weightKg      Int?     @map("weight_kg")
+  dominantHand  String?  @map("dominant_hand")
+  isActive      Boolean  @default(true) @map("is_active")
+  playerClubHistory PlayerClubHistory[]
+  teamPlayers   TeamPlayer[]
+  gamesAsPlayer1   Game[]           @relation("Player1")
+  gamesAsPlayer2   Game[]           @relation("Player2")
+  gamesWon         Game[]           @relation("Winner")
+  playerStats      PlayerStat[]
+  gameSidePlayers  GameSidePlayer[]
+}
+
+model PlayerClubHistory {
+  id        String   @id @default(uuid())
+  playerId  String   @map("player_id")
+  clubId    String   @map("club_id")
+  joinedDate DateTime @db.Date @map("joined_date")
+  leftDate  DateTime? @db.Date @map("left_date")
+  note      String?
+  player    Player   @relation(fields: [playerId], references: [id])
+  club      Club     @relation(fields: [clubId], references: [id])
+}
+
+model Team {
+  id              String   @id @default(uuid())
+  clubId          String?  @map("club_id")
+  name            String
+  shortName       String?  @map("short_name")
+  number          Int?     @map("team_number")
+  disciplineId    String   @map("discipline_id")
+  isProfessional  Boolean  @default(false) @map("is_professional")
+  club            Club?    @relation(fields: [clubId], references: [id])
+  discipline      Discipline @relation(fields: [disciplineId], references: [id])
+  teamPlayers     TeamPlayer[]
+}
+
+model TeamPlayer {
+  teamId   String @map("team_id")
+  playerId String @map("player_id")
+  role     String?
+  team     Team   @relation(fields: [teamId], references: [id])
+  player   Player @relation(fields: [playerId], references: [id])
+  @@id([teamId, playerId])
+}
+
+model Competition {
+  id              String   @id @default(uuid())
+  seriesId        String?  @map("series_id")
+  disciplineId    String   @map("discipline_id")
+  yearId          String   @map("year_id")
+  organizerId     String   @map("organizer_id")
+  ageCategoryId   String?  @map("age_category_id")
+  genderId        String?  @map("gender_id")
+  startDate       DateTime @db.Date @map("start_date")
+  endDate         DateTime? @db.Date @map("end_date")
+  location        String?
+  country         String?
+  status          String   // upcoming, ongoing, completed, cancelled
+  phase           String?
+  series          CompetitionSeries? @relation(fields: [seriesId], references: [id])
+  discipline      Discipline @relation(fields: [disciplineId], references: [id])
+  year            CompetitionYear @relation(fields: [yearId], references: [id])
+  organizer       Organizer @relation(fields: [organizerId], references: [id])
+  ageCategory     AgeCategory? @relation(fields: [ageCategoryId], references: [id])
+  gender          CompetitionGender? @relation(fields: [genderId], references: [id])
+  games           Game[]
+}
+
+model Court {
+  id        String   @id @default(uuid())
+  name      String
+  city      String
+  country   String
+  courtType String   @map("court_type") // fronton, trinquet, mur_a_gauche, place_libre
+  games     Game[]
+}
+
+model Game {
+  id              String   @id @default(uuid())
+  competitionId   String   @map("competition_id")
+  seriesId        String?  @map("series_id")
+  courtId         String?  @map("court_id")
+  player1Id       String   @map("player1_id")
+  player2Id       String   @map("player2_id")
+  startDate       DateTime @db.Date @map("start_date")
+  endDate         DateTime? @db.Date @map("end_date")
+  winnerId        String?  @map("winner_id")
+  status          String   // scheduled, in_progress, completed, postponed, cancelled
+  notes           String?
+  sourceId        String?  @map("source_id")
+  externalId      String?  @map("external_id")   // e.g. CTPB no_renc
+  scrapedFromUrl  String?  @map("scraped_from_url") @db.Text
+  scoreComplete   Boolean? @map("score_complete")   // true when 100% score known; false/null => rescan
+  phase           String?  // e.g. Poules, Barrage, 1/4 finale, 1/2 finale, Finale
+  competition     Competition @relation(fields: [competitionId], references: [id])
+  court           Court?   @relation(fields: [courtId], references: [id])
+  player1         Player   @relation("Player1", fields: [player1Id], references: [id])
+  player2         Player   @relation("Player2", fields: [player2Id], references: [id])
+  winner          Player?  @relation("Winner", fields: [winnerId], references: [id])
+  source          Source?  @relation(fields: [sourceId], references: [id])
+  gameScores      GameScore[]
+  playerStats     PlayerStat[]
+  sidePlayers     GameSidePlayer[]
+}
+
+model GameSidePlayer {
+  gameId       String  @map("game_id")
+  playerId    String  @map("player_id")
+  side        Int     // 1 = first team (e.g. club1), 2 = second team (e.g. club2)
+  displayOrder Int?   @map("display_order") // 1..5 display order within the side
+  game        Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player      Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  @@id([gameId, playerId, side])
+}
+
+model GameScore {
+  id                    String   @id @default(uuid())
+  gameId                String   @map("game_id")
+  rawScore              String   @map("raw_score") @db.VarChar(50)
+  scoreSetsPlayer1       Int?     @map("score_sets_player1")
+  scoreSetsPlayer2       Int?     @map("score_sets_player2")
+  scoreGamesSet1Player1  Int?     @default(0) @map("score_games_set1_player1")
+  scoreGamesSet1Player2  Int?     @default(0) @map("score_games_set1_player2")
+  scoreGamesSet2Player1  Int?     @default(0) @map("score_games_set2_player1")
+  scoreGamesSet2Player2  Int?     @default(0) @map("score_games_set2_player2")
+  scorePointsSet3Player1 Int?    @default(0) @map("score_points_set3_player1")
+  scorePointsSet3Player2 Int?    @default(0) @map("score_points_set3_player2")
+  game                  Game     @relation(fields: [gameId], references: [id])
+}
+
+model PlayerStat {
+  id                  String   @id @default(uuid())
+  playerId            String   @map("player_id")
+  gameId              String   @map("game_id")
+  shotsTotal          Int      @default(0) @map("shots_total")
+  shotsWon            Int      @default(0) @map("shots_won")
+  shotsUnforcedErrors Int      @default(0) @map("shots_unforced_errors")
+  forcedErrors        Int      @default(0) @map("forced_errors")
+  volleyesTotal       Int      @default(0) @map("volleyes_total")
+  volleyesWon         Int      @default(0) @map("volleyes_won")
+  smashesTotal        Int      @default(0) @map("smashes_total")
+  smashesWon          Int      @default(0) @map("smashes_won")
+  volleysUnforcedErrors Int    @default(0) @map("volleys_unforced_errors")
+  netPointsLost      Int      @default(0) @map("net_points_lost")
+  player              Player   @relation(fields: [playerId], references: [id])
+  game                Game     @relation(fields: [gameId], references: [id])
+}
+
+// === Scraping metadata (optional tracking) ===
+
+model Source {
+  id                    String   @id @default(uuid())
+  name                  String
+  url                   String?
+  country               String?
+  organizerId           String?  @map("organizer_id")
+  isActive              Boolean  @default(true) @map("is_active")
+  lastScraped           DateTime? @map("last_scraped")
+  lastSuccessfulScrape  DateTime? @map("last_successful_scrape")
+  scrapeFrequency       String?  @map("scrape_frequency") // daily, weekly, monthly, as_needed
+  scrapingJobRuns       ScrapingJobRun[]
+  scrapedFilterOptions  ScrapedFilterOption[]
+  scrapedSpecialties    ScrapedSpecialty[]
+  games                 Game[]
+}
+
+model ScrapedFilterOption {
+  id               String             @id @default(uuid())
+  sourceId         String             @map("source_id")
+  kind             String             // competition, city, club, category, phase (no specialty)
+  value            String
+  label            String
+  source           Source             @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  scrapedSpecialties ScrapedSpecialty[]
+  @@unique([sourceId, kind, value])
+}
+
+model ScrapedSpecialty {
+  id                   String              @id @default(uuid())
+  sourceId             String              @map("source_id")
+  competitionOptionId  String              @map("competition_option_id")
+  value                String
+  label                String
+  source               Source              @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  competitionOption    ScrapedFilterOption @relation(fields: [competitionOptionId], references: [id], onDelete: Cascade)
+  @@unique([sourceId, competitionOptionId, value])
+}
+
+model ScrapingJobRun {
+  id          String   @id @default(uuid())
+  sourceId    String   @map("source_id")
+  url         String
+  startTime   DateTime @map("start_time")
+  endTime     DateTime? @map("end_time")
+  status      String   // running, success, failed, partial
+  rawContent  String?  @map("raw_content") @db.Text
+  errorsCount Int      @default(0) @map("errors_count")
+  logs        String?  @db.Text
+  source      Source   @relation(fields: [sourceId], references: [id])
+}

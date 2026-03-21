@@ -1,0 +1,58 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.game-detail-card {
+  max-width: 640px;
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.game-date,
+.game-status {
+  color: var(--pelota-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.versus-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  .player-block {
+    flex: 1;
+    text-align: center;
+  }
+  .player-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+  .vs {
+    color: var(--pelota-red);
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+}
+
+.scores {
+  margin: 1rem 0;
+  .raw-score {
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-weight: 600;
+    color: var(--pelota-green);
+  }
+}
+
+.winner {
+  font-weight: 600;
+  color: var(--pelota-green);
+}
+
+.meta {
+  font-size: 0.875rem;
+  color: var(--pelota-gray-700);
+  margin-top: 0.5rem;
+}

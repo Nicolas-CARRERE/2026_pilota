@@ -1,0 +1,8 @@
+beautifulsoup4
+dotenv
+fastapi
+httpx
+pre-commit
+python-dotenv
+pydantic
+uvicorn

@@ -1,0 +1,39 @@
+<div class="container">
+  @if (loading) {
+    <app-loading></app-loading>
+  } @else if (error) {
+    <div class="error-message">{{ error }}</div>
+    <p><a routerLink="/championships" class="btn btn--outline">Retour aux championnats</a></p>
+  } @else if (competition) {
+    <p><a routerLink="/championships" class="back-link">← Retour aux championnats</a></p>
+    <article class="card championship-detail-card">
+      <h1>{{ competition.year.year }} – {{ competition.discipline.name }}</h1>
+      <p class="meta">Organisateur : {{ competition.organizer.name }}</p>
+      <p class="meta">Statut : {{ competition.status }}</p>
+      @if (competition.phase) {
+        <p class="meta">Phase : {{ competition.phase }}</p>
+      }
+      @if (competition._count?.games !== undefined) {
+        <p class="meta">{{ competition._count?.games }} partie(s)</p>
+      }
+
+      @if (competition.recentGames?.length) {
+        <section class="section">
+          <h2>Parties récentes</h2>
+          <ul class="game-list">
+            @for (g of competition.recentGames; track g.id) {
+              <li class="game-item">
+                <span class="game-date">{{ g.startDate | formatDate }}</span>
+                <a [routerLink]="['/games', g.id]" class="game-link">
+                  {{ formatVersus(g) }}
+                </a>
+                <span class="game-score">{{ scoreDisplay(g.gameScores) }}</span>
+              </li>
+            }
+          </ul>
+          <p><a [routerLink]="['/games']" [queryParams]="{ competitionId: competition.id }" class="btn btn--primary">Voir toutes les parties de ce championnat</a></p>
+        </section>
+      }
+    </article>
+  }
+</div>

@@ -1,0 +1,87 @@
+<div class="container">
+  <h1>Résultats</h1>
+  <p class="lead">Liste des parties avec filtres par compétition et joueur.</p>
+
+  <div class="filters filters--compact card">
+    <form (ngSubmit)="applyFilters()" class="filters-form">
+      @if (showCompetitionSelect) {
+        <label class="filter-label">
+          Compétition
+          <select [(ngModel)]="filters.competitionId" name="competitionId" (change)="applyFilters()">
+            <option value="">Toutes</option>
+            @for (c of competitions | orderCompetitionsByLabel; track c.id) {
+              <option [value]="c.id">{{ c.year.year }} – {{ c.discipline.name }} ({{ c.organizer.name }})</option>
+            }
+          </select>
+        </label>
+      } @else if (singleCompetition) {
+        <span class="filter-badge">Championnat : {{ singleCompetition.year.year }} – {{ singleCompetition.discipline.name }}</span>
+      }
+      @if (showPlayerSelect) {
+        <label class="filter-label">
+          Joueur
+          <select [(ngModel)]="filters.playerId" name="playerId" (change)="applyFilters()">
+            <option value="">Tous</option>
+            @for (p of players | orderPlayersByName; track p.id) {
+              <option [value]="p.id">{{ p.firstName }} {{ p.lastName }}</option>
+            }
+          </select>
+        </label>
+      } @else if (singlePlayer) {
+        <span class="filter-badge">Joueur : {{ singlePlayer.firstName }} {{ singlePlayer.lastName }}</span>
+      }
+      <label class="filter-label">
+        Statut
+        <select [(ngModel)]="filters.status" name="status" (change)="applyFilters()">
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+      @if (showPhaseSelect) {
+        <label class="filter-label">
+          Phase
+          <select [(ngModel)]="filters.phase" name="phase" (change)="applyFilters()">
+            @for (opt of phaseOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </label>
+      } @else if (singlePhase) {
+        <span class="filter-badge">Phase : {{ singlePhase.label }}</span>
+      }
+      <button type="submit" class="btn btn--primary btn--compact">Appliquer</button>
+    </form>
+  </div>
+
+  @if (loading) {
+    <app-loading></app-loading>
+  } @else if (error) {
+    <div class="error-message">{{ error }}</div>
+  } @else if (games.length === 0) {
+    <p>Aucune partie trouvée.</p>
+  } @else {
+    <ul class="game-list">
+      @for (g of games; track g.id) {
+        <li class="card game-card">
+          <a [routerLink]="['/games', g.id]" class="game-card-link">
+            <span class="game-date">{{ g.startDate | formatDate }}</span>
+            <div class="game-versus">
+              {{ formatVersus(g) }}
+            </div>
+            <span class="score">{{ scoreDisplay(g.gameScores) }}</span>
+            @if (g.phase ?? g.competition.phase; as phaseLabel) {
+              <span class="game-phase">{{ phaseLabel }}</span>
+            }
+            <span class="status" [class]="'status-' + g.status">{{ g.status }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+    <div class="pagination">
+      <button type="button" class="btn btn--outline" [disabled]="offset === 0" (click)="pagePrev()">Précédent</button>
+      <span class="pagination-info">{{ offset + 1 }} – {{ offset + games.length }} / {{ total }}</span>
+      <button type="button" class="btn btn--outline" [disabled]="offset + limit >= total" (click)="pageNext()">Suivant</button>
+    </div>
+  }
+</div>

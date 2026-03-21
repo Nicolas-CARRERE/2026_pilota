@@ -1,0 +1,55 @@
+<div class="container">
+  <h1>Pelota – Résultats &amp; Calendrier</h1>
+  <p class="lead">Consultez les prochaines parties, les résultats par joueur, équipe ou championnat.</p>
+
+  <section class="section">
+    <h2>Prochaines parties</h2>
+    @if (loading) {
+      <app-loading></app-loading>
+    } @else if (error) {
+      <div class="error-message">{{ error }}</div>
+    } @else if (nextGames.length === 0) {
+      <p>Aucune prochaine partie programmée.</p>
+    } @else {
+      <ul class="game-cards">
+        @for (g of nextGames; track g.id) {
+          <li class="card game-card">
+            <span class="game-date">{{ g.startDate | formatDate }}</span>
+            <div class="game-versus">
+              {{ formatVersus(g) }}
+            </div>
+            @if (g.gameScores.length) {
+              <span class="score">{{ scoreDisplay(g.gameScores) }}</span>
+            }
+            @if (g.phase ?? g.competition.phase; as phaseLabel) {
+              <span class="meta">{{ phaseLabel }}</span>
+            }
+          </li>
+        }
+      </ul>
+      <p><a routerLink="/games" class="btn btn--primary">Voir tous les résultats</a></p>
+    }
+  </section>
+
+  <section class="section links-section">
+    <h2>Explorer</h2>
+    <div class="link-tiles">
+      <a routerLink="/games" class="card link-tile">
+        <span class="link-tile-title">Résultats</span>
+        <span class="link-tile-desc">Liste des parties et filtres</span>
+      </a>
+      <a routerLink="/players" class="card link-tile">
+        <span class="link-tile-title">Joueurs</span>
+        <span class="link-tile-desc">Stats et parties par joueur</span>
+      </a>
+      <a routerLink="/teams" class="card link-tile">
+        <span class="link-tile-title">Équipes</span>
+        <span class="link-tile-desc">Équipes et parties récentes</span>
+      </a>
+      <a routerLink="/championships" class="card link-tile">
+        <span class="link-tile-title">Championnats</span>
+        <span class="link-tile-desc">Compétitions et calendrier</span>
+      </a>
+    </div>
+  </section>
+</div>

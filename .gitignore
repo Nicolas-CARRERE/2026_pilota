@@ -1,0 +1,5 @@
+# Cursor IDE — local plans, debug logs, machine-specific rules
+.cursor/
+
+# OS
+.DS_Store

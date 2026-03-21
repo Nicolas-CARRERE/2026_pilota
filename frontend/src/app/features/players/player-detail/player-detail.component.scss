@@ -1,0 +1,60 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.player-detail-card {
+  max-width: 640px;
+  .stats-line {
+    color: var(--pelota-gray-700);
+    margin-bottom: 1.5rem;
+  }
+}
+
+.section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pelota-gray-200);
+  h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+  }
+}
+
+.match-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.match-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--pelota-gray-100);
+  font-size: 0.9375rem;
+  .match-date {
+    color: var(--pelota-gray-700);
+  }
+  .match-badge {
+    min-width: 4.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    &.badge-won {
+      background: var(--pelota-green-light, #e8f5e9);
+      color: var(--pelota-green, #2e7d32);
+    }
+    &.badge-lost {
+      background: var(--pelota-red-light, #ffebee);
+      color: var(--pelota-red, #c62828);
+    }
+  }
+  .match-score {
+    font-weight: 600;
+    color: var(--pelota-green);
+  }
+}

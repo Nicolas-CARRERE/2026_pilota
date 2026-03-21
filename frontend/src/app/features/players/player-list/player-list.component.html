@@ -1,0 +1,23 @@
+<div class="container">
+  <h1>Joueurs</h1>
+  <p class="lead">Statistiques par joueur : parties jouées, victoires et défaites.</p>
+
+  @if (loading) {
+    <app-loading></app-loading>
+  } @else if (error) {
+    <div class="error-message">{{ error }}</div>
+  } @else if (players.length === 0) {
+    <p>Aucun joueur trouvé.</p>
+  } @else {
+    <ul class="player-list">
+      @for (p of players; track p.id) {
+        <li class="card player-card">
+          <a [routerLink]="['/players', p.id]" class="player-card-link">
+            <span class="player-name">{{ displayName(p) }}</span>
+            <span class="player-stats">{{ p.gamesPlayed }} parties · {{ p.wins }}V – {{ p.losses }}D</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>
