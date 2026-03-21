@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 import random
 from datetime import datetime, timezone
 from typing import Any, List, Optional
@@ -316,12 +317,17 @@ async def scrape_url(url: str, timeout_seconds: Optional[float] = None) -> Scrap
 
 # Min/max delay (seconds) between first and second request so the server
 # returns resultats.php instead of redirecting to the home page.
-CTPB_FILTERS_DELAY_MIN_SECONDS = 1.0
-CTPB_FILTERS_DELAY_MAX_SECONDS = 3.0
+# Updated for rate limiting (DEV/TEST ONLY - respect robots.txt)
+CTPB_FILTERS_DELAY_MIN_SECONDS = float(os.getenv("CTPB_REQUEST_DELAY_MIN_SECONDS", "5.0"))
+CTPB_FILTERS_DELAY_MAX_SECONDS = float(os.getenv("CTPB_REQUEST_DELAY_MAX_SECONDS", "10.0"))
 
 # CTPB filters do many GETs with delays; use a longer per-request timeout to avoid
 # "Server disconnected" / read timeouts when the site is slow.
 CTPB_FILTERS_DEFAULT_TIMEOUT_SECONDS = 120.0
+
+# Rate limiting constants (DEV/TEST ONLY)
+CTPB_MAX_COMBINATIONS_PER_RUN = int(os.getenv("CTPB_MAX_COMBINATIONS_PER_RUN", "5"))
+CTPB_RATE_LIMIT_PER_MINUTE = int(os.getenv("CTPB_RATE_LIMIT_PER_MINUTE", "10"))
 
 
 async def fetch_ctpb_filters(
@@ -361,6 +367,16 @@ async def fetch_ctpb_filters(
         if timeout_seconds is not None
         else max(settings.timeout_seconds, CTPB_FILTERS_DEFAULT_TIMEOUT_SECONDS)
     )
+    
+    # DEV/TEST warning
+    if settings.ctpb_dev_mode:
+        scrape_logger.warning(
+            "⚠️  CTPB scraping is DEV/TEST ONLY - respect robots.txt (Disallow: /). "
+            "Rate limit: %s req/min, max %s combinations per run",
+            settings.ctpb_rate_limit_per_minute,
+            settings.ctpb_max_combinations_per_run,
+        )
+    
     scrape_logger.info(
         "source=ctpb action=filters step=start competition_value=%s fetch_specialties_per_competition=%s timeout=%s",
         competition_value if competition_value else "full",
@@ -417,6 +433,16 @@ async def fetch_ctpb_filters(
             for opt in result.get("competitions", [])
             if (opt.get("value") or "").strip() and (opt.get("value") or "").strip() != "0"
         ]
+        
+        # Rate limit: only process first N competitions (DEV/TEST ONLY)
+        if len(competitions) > CTPB_MAX_COMBINATIONS_PER_RUN:
+            scrape_logger.warning(
+                "⚠️  Limiting to %s/%s competitions (DEV/TEST mode - respect robots.txt)",
+                CTPB_MAX_COMBINATIONS_PER_RUN,
+                len(competitions),
+            )
+            competitions = competitions[:CTPB_MAX_COMBINATIONS_PER_RUN]
+        
         scrape_logger.info(
             "source=ctpb action=filters step=1_done competitions_count=%s",
             len(competitions),
