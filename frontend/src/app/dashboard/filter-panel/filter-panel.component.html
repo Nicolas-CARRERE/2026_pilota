@@ -1,58 +1,38 @@
 <div class="filter-panel">
-  <div class="filter-group">
-    <label for="competition">Compétition</label>
-    <select id="competition" [(ngModel)]="currentFilters.competition" (ngModelChange)="onFilterChange('competition', $event)">
-      <option value="">Toutes</option>
-      @for (comp of competitions; track comp.id) {
-        <option [value]="comp.id">{{ comp.label }}</option>
-      }
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="discipline">Discipline</label>
-    <select id="discipline" [(ngModel)]="currentFilters.discipline" (ngModelChange)="onFilterChange('discipline', $event)">
-      <option value="">Toutes</option>
-      <option value="place-libre">Place Libre</option>
-      <option value="trinquet">Trinquet</option>
-      <option value="fronton">Fronton</option>
-      <option value="mur-à-gauche">Mur à Gauche</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="season">Saison</label>
-    <input type="number" id="season" [(ngModel)]="currentFilters.season" (ngModelChange)="onFilterChange('season', $event)" placeholder="ex: 2026" min="2000" max="2030" />
-  </div>
-
-  <div class="filter-group">
-    <label for="phase">Phase</label>
-    <select id="phase" [(ngModel)]="currentFilters.phase" (ngModelChange)="onFilterChange('phase', $event)">
-      @for (phase of phaseOptions; track phase.value) {
-        <option [value]="phase.value">{{ phase.label }}</option>
-      }
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="player">Joueur</label>
-    <select id="player" [(ngModel)]="currentFilters.player" (ngModelChange)="onFilterChange('player', $event)">
-      <option value="">Tous</option>
-      @for (player of players; track player.id) {
-        <option [value]="player.id">{{ player.lastName }} {{ player.firstName }}</option>
-      }
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="date_from">Du</label>
-    <input type="date" id="date_from" [(ngModel)]="currentFilters.date_from" (ngModelChange)="onFilterChange('date_from', $event)" />
-  </div>
-
-  <div class="filter-group">
-    <label for="date_to">Au</label>
-    <input type="date" id="date_to" [(ngModel)]="currentFilters.date_to" (ngModelChange)="onFilterChange('date_to', $event)" />
-  </div>
-
-  <button class="reset-btn" (click)="resetFilters()">Réinitialiser</button>
+  <h3>Filters</h3>
+  <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <div class="form-group">
+      <label for="competition">Competition:</label>
+      <select id="competition" formControlName="competition">
+        <option [ngValue]="null">All</option>
+        @for (comp of competitions; track comp.id) {
+          <option [value]="comp.id">{{ comp.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="discipline">Discipline:</label>
+      <select id="discipline" formControlName="discipline">
+        <option [ngValue]="null">All</option>
+        @for (disc of disciplines; track disc.id) {
+          <option [value]="disc.id">{{ disc.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="season">Season:</label>
+      <input type="number" id="season" formControlName="season" placeholder="Year" />
+    </div>
+    <div class="form-group">
+      <label for="phase">Phase:</label>
+      <select id="phase" formControlName="phase">
+        <option [ngValue]="null">All</option>
+        <option value="regular">Regular</option>
+        <option value="playoffs">Playoffs</option>
+        <option value="final">Final</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="!filterForm.valid">Apply</button>
+    <button type="button" (click)="resetFilters()">Reset</button>
+  </form>
 </div>

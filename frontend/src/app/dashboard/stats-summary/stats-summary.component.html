@@ -1,34 +1,22 @@
 <div class="stats-summary">
-  @if (loading) {
-    <div class="loading">Chargement...</div>
-  } @else if (error) {
-    <div class="error">{{ error }}</div>
-  } @else {
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-value">{{ stats.total_games }}</div>
-        <div class="kpi-label">Parties</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-value">{{ stats.total_players }}</div>
-        <div class="kpi-label">Joueurs</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-value">{{ stats.total_clubs }}</div>
-        <div class="kpi-label">Clubs</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-value">{{ stats.total_competitions }}</div>
-        <div class="kpi-label">Compétitions</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-value">{{ stats.total_disciplines }}</div>
-        <div class="kpi-label">Disciplines</div>
-      </div>
-    </div>
-  }
+  <div class="stat-card">
+    <h4>Total Games</h4>
+    <p class="stat-value">{{ stats.total_games }}</p>
+  </div>
+  <div class="stat-card">
+    <h4>Total Players</h4>
+    <p class="stat-value">{{ stats.total_players }}</p>
+  </div>
+  <div class="stat-card">
+    <h4>Total Clubs</h4>
+    <p class="stat-value">{{ stats.total_clubs }}</p>
+  </div>
+  <div class="stat-card">
+    <h4>Total Competitions</h4>
+    <p class="stat-value">{{ stats.total_competitions }}</p>
+  </div>
+  <div class="stat-card">
+    <h4>Total Disciplines</h4>
+    <p class="stat-value">{{ stats.total_disciplines }}</p>
+  </div>
 </div>
