@@ -9,8 +9,8 @@
     <div class="clubs-list">
       @for (club of clubs; track club.id) {
         <div class="club-item">
-          <span class="club-name">{{ club.short_name || club.name }}</span>
-          <span class="club-games">{{ club.games_played }} games</span>
+          <span class="club-name">{{ club.shortName || club.name }}</span>
+          <span class="club-games">{{ club.gamesPlayed }} games</span>
         </div>
       }
     </div>

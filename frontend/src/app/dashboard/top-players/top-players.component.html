@@ -9,7 +9,7 @@
     <div class="players-list">
       @for (player of players; track player.id) {
         <div class="player-item">
-          <span class="player-name">{{ player.first_name }} {{ player.last_name }}</span>
+          <span class="player-name">{{ player.firstName }} {{ player.lastName }}</span>
           <span class="player-wins">{{ player.wins }} wins</span>
         </div>
       }

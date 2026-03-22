@@ -6,7 +6,7 @@
       <select id="competition" formControlName="competition">
         <option [ngValue]="null">All</option>
         @for (comp of competitions; track comp.id) {
-          <option [value]="comp.id">{{ comp.name }}</option>
+          <option [value]="comp.id">{{ comp.year.year }} - {{ comp.organizer.name }}</option>
         }
       </select>
     </div>
