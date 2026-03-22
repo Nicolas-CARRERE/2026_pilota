@@ -4,7 +4,7 @@
     <p>Loading...</p>
   } @else if (timeline.length) {
     <div class="chart-container">
-      <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
+      <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
     </div>
   } @else {
     <p>No data available</p>

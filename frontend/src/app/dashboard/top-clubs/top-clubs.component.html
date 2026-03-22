@@ -4,7 +4,7 @@
     <p>Loading...</p>
   } @else if (clubs.length) {
     <div class="chart-container">
-      <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType"></canvas>
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
     </div>
     <div class="clubs-list">
       @for (club of clubs; track club.id) {

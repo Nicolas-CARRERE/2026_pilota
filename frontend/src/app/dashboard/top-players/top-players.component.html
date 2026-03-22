@@ -1,36 +1,20 @@
-<div class="top-players">
-  <h3>Top Joueurs</h3>
-  
+<div class="top-players-card">
+  <h3>Top Players</h3>
   @if (loading) {
-    <div class="loading">Chargement...</div>
-  } @else if (error) {
-    <div class="error">{{ error }}</div>
-  } @else if (players.length === 0) {
-    <div class="empty">Aucun joueur trouvé</div>
+    <p>Loading...</p>
+  } @else if (players.length) {
+    <div class="chart-container">
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
+    </div>
+    <div class="players-list">
+      @for (player of players; track player.id) {
+        <div class="player-item">
+          <span class="player-name">{{ player.first_name }} {{ player.last_name }}</span>
+          <span class="player-wins">{{ player.wins }} wins</span>
+        </div>
+      }
+    </div>
   } @else {
-    <table class="stats-table">
-      <thead>
-        <tr>
-          <th>Joueur</th>
-          <th>Parties</th>
-          <th>Victoires</th>
-          <th>Defaites</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (player of players; track player.id) {
-          <tr>
-            <td>
-              <a [routerLink]="['/players', player.id]" class="player-link">
-                {{ displayName(player) }}
-              </a>
-            </td>
-            <td>{{ player.games_played }}</td>
-            <td class="wins">{{ player.wins }}</td>
-            <td class="losses">{{ player.losses }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <p>No data available</p>
   }
 </div>
