@@ -1,43 +1,48 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { StatsService, PlayerStats } from '../../../core/services/stats.service';
-import { DashboardFilters } from '../../../core/services/filter.service';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { StatsService, PlayerStats } from '../../core/services/stats.service';
+import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
 
 @Component({
   selector: 'app-top-players',
   standalone: true,
-  imports: [RouterLink],
+  imports: [BaseChartDirective],
   templateUrl: './top-players.component.html',
   styleUrl: './top-players.component.scss',
 })
 export class TopPlayersComponent implements OnInit {
-  @Input() filters: DashboardFilters = {};
   players: PlayerStats[] = [];
-  loading = true;
-  error: string | null = null;
+  loading = false;
 
-  constructor(private statsService: StatsService) {}
+  public barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y} wins` } },
+    },
+  };
+
+  public barChartType: ChartType = 'bar';
+  public barChartData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], label: 'Wins' }] };
+
+  constructor(private statsService: StatsService, private filterService: DashboardFilterService) {}
 
   ngOnInit(): void {
-    this.loadPlayers();
+    this.filterService.getFilters().subscribe((filters: DashboardFilters) => this.loadPlayers(filters));
   }
 
-  loadPlayers(): void {
+  loadPlayers(filters: DashboardFilters): void {
     this.loading = true;
-    this.error = null;
-    this.statsService.getTopPlayers(10, this.filters).subscribe({
-      next: (data) => {
-        this.players = data.players;
+    this.statsService.getTopPlayers(10, filters).subscribe({
+      next: (response) => {
+        this.players = response.players;
+        this.barChartData.labels = response.players.map((p) => `${p.first_name} ${p.last_name}`);
+        this.barChartData.datasets[0].data = response.players.map((p) => p.wins);
         this.loading = false;
       },
-      error: (err) => {
-        this.error = err?.message ?? 'Erreur de chargement';
-        this.loading = false;
-      },
+      error: () => { this.loading = false; },
     });
-  }
-
-  displayName(player: PlayerStats): string {
-    return player.nickname || `${player.first_name} ${player.last_name}`;
   }
 }

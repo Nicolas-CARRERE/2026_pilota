@@ -1,0 +1,20 @@
+<div class="top-clubs-card">
+  <h3>Top Clubs</h3>
+  @if (loading) {
+    <p>Loading...</p>
+  } @else if (clubs.length) {
+    <div class="chart-container">
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType"></canvas>
+    </div>
+    <div class="clubs-list">
+      @for (club of clubs; track club.id) {
+        <div class="club-item">
+          <span class="club-name">{{ club.short_name || club.name }}</span>
+          <span class="club-games">{{ club.games_played }} games</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <p>No data available</p>
+  }
+</div>

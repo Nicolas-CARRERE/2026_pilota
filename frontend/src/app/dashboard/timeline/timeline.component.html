@@ -1,0 +1,12 @@
+<div class="timeline-card">
+  <h3>Games Timeline</h3>
+  @if (loading) {
+    <p>Loading...</p>
+  } @else if (timeline.length) {
+    <div class="chart-container">
+      <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
+    </div>
+  } @else {
+    <p>No data available</p>
+  }
+</div>

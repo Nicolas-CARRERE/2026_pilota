@@ -28,7 +28,7 @@ export class DashboardComponent implements OnInit {
   constructor(private filterService: DashboardFilterService) {}
 
   ngOnInit(): void {
-    this.filterService.getFilters().subscribe((filters) => {
+    this.filterService.getFilters().subscribe((filters: DashboardFilters) => {
       this.filters = filters;
     });
   }

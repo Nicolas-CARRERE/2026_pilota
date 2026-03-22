@@ -1,0 +1,10 @@
+.timeline-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+.timeline-card h3 { margin: 0 0 16px 0; font-size: 18px; color: #333; }
+.chart-container { height: 200px; }
+@media (max-width: 768px) { .chart-container { height: 150px; } }

@@ -1,45 +1,32 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { StatsService, SummaryStats } from '../../../core/services/stats.service';
-import { DashboardFilters } from '../../../core/services/filter.service';
-import { AsyncPipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { StatsService, SummaryStats } from '../../core/services/stats.service';
+import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
 
 @Component({
   selector: 'app-stats-summary',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [],
   templateUrl: './stats-summary.component.html',
   styleUrl: './stats-summary.component.scss',
 })
 export class StatsSummaryComponent implements OnInit {
-  @Input() filters: DashboardFilters = {};
-  stats: SummaryStats = {
-    total_games: 0,
-    total_players: 0,
-    total_clubs: 0,
-    total_competitions: 0,
-    total_disciplines: 0,
-  };
-  loading = true;
-  error: string | null = null;
+  stats: SummaryStats = { total_games: 0, total_players: 0, total_clubs: 0, total_competitions: 0, total_disciplines: 0 };
+  loading = false;
 
-  constructor(private statsService: StatsService) {}
+  constructor(private statsService: StatsService, private filterService: DashboardFilterService) {}
 
   ngOnInit(): void {
-    this.loadStats();
+    this.filterService.getFilters().subscribe((filters: DashboardFilters) => this.loadStats(filters));
   }
 
-  loadStats(): void {
+  loadStats(filters: DashboardFilters): void {
     this.loading = true;
-    this.error = null;
-    this.statsService.getSummary(this.filters).subscribe({
-      next: (data) => {
+    this.statsService.getSummary(filters).subscribe({
+      next: (data: SummaryStats) => {
         this.stats = data;
         this.loading = false;
       },
-      error: (err) => {
-        this.error = err?.message ?? 'Erreur de chargement';
-        this.loading = false;
-      },
+      error: () => { this.loading = false; },
     });
   }
 }
