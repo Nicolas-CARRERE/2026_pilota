@@ -10,6 +10,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 
+from app.services.player_extraction import _parse_club_name_and_players, _parse_players_from_cell
+
 
 # -----------------------
 # Helper functions
@@ -22,67 +24,6 @@ def _extract_no_renc_from_link(anchor) -> Optional[str]:
     href = anchor.get("href") or ""
     match = re.search(r"no_renc=(\d+)", href)
     return match.group(1) if match else None
-
-
-def _parse_players_from_cell(cell) -> List[Dict[str, str]]:
-    """Extract player id (license) and name from club cell li elements.
-
-    Expected formats: "(license) Name", "Name (license)", or plain "license".
-    When the visible part is only digits (license), we set name to "" so the
-    ingest layer stores the license in license field and uses a placeholder for display.
-    """
-    players: List[Dict[str, str]] = []
-    if not cell:
-        return players
-
-    for li in cell.find_all("li"):
-        text = li.get_text(strip=True) if li else ""
-        if not text:
-            continue
-
-        # "(12345) Name" or "(12345) 12345" (license repeated)
-        match = re.match(r"\((\d+)\)\s*(.+)", text)
-        if match:
-            license_id = match.group(1)
-            name_part = match.group(2).strip()
-            if re.match(r"^\d+$", name_part):
-                name_part = ""  # Second part is license again, not a name
-            players.append({"license": license_id, "name": name_part})
-            continue
-
-        # "Name (12345)"
-        match_trailing = re.match(r"(.+?)\s*\((\d+)\)\s*$", text)
-        if match_trailing:
-            name_part = match_trailing.group(1).strip()
-            players.append({"license": match_trailing.group(2), "name": name_part})
-            continue
-
-        # Plain digits only: license number only
-        if re.match(r"^\d+$", text):
-            players.append({"license": text, "name": ""})
-            continue
-
-        # Special cases like "(E)" or "(S)"
-        if re.match(r"\([A-Z]\)", text):
-            players.append({"license": "", "name": text})
-
-    return players
-
-def _parse_club_name_and_players(cell) -> Tuple[str, List[Dict[str, str]]]:
-    """Extract club name and players from a club cell."""
-    if not cell:
-        return "", []
-    text_parts: List[str] = []
-    for child in cell.children:
-        if hasattr(child, "name") and child.name == "span" and "small" in (child.get("class") or []):
-            break
-        if hasattr(child, "get_text"):
-            text_parts.append(child.get_text())
-        elif isinstance(child, str):
-            text_parts.append(child)
-    club_name = "".join(text_parts).replace("\xa0", " ").strip()
-    players = _parse_players_from_cell(cell)
-    return club_name, players
 
 
 def _normalize_score(raw: str) -> str:

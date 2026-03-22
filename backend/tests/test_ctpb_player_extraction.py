@@ -6,10 +6,13 @@ These tests verify that player data is correctly extracted from the HTML structu
 
 import pytest
 from bs4 import BeautifulSoup
-from app.services.ctpb_parser import (
+from app.services.player_extraction import (
     _parse_players_from_cell,
     _parse_club_name_and_players,
-    parse_resultats_html,
+    extract_players_from_html,
+    parse_player_line,
+    validate_player,
+    validate_players,
 )
 
 
@@ -132,3 +135,70 @@ class TestPlayerNameParsing:
         
         assert len(players) == 1
         assert players[0]['name'] == 'ETCHART-SARASOLA Aetz'
+
+
+class TestPlayerExtractionService:
+    """Test the player extraction service functions."""
+
+    def test_extract_players_from_html(self):
+        """Test extracting players from full HTML."""
+        html = """
+        <html>
+            <body>
+                <li> (061721) MENDIBURU Florian </li>
+                <li> (063150) THICOIPE Bittor </li>
+            </body>
+        </html>
+        """
+        players = extract_players_from_html(html)
+        
+        assert len(players) == 2
+        assert players[0] == {'license': '061721', 'name': 'MENDIBURU Florian'}
+        assert players[1] == {'license': '063150', 'name': 'THICOIPE Bittor'}
+
+    def test_parse_player_line_license_name(self):
+        """Test parse_player_line with (license) Name format."""
+        result = parse_player_line("(061721) MENDIBURU Florian")
+        assert result == {'license': '061721', 'name': 'MENDIBURU Florian'}
+
+    def test_parse_player_line_name_license(self):
+        """Test parse_player_line with Name (license) format."""
+        result = parse_player_line("OLHAGARAY Mathieu (057867)")
+        assert result == {'license': '057867', 'name': 'OLHAGARAY Mathieu'}
+
+    def test_parse_player_line_license_only(self):
+        """Test parse_player_line with license only."""
+        result = parse_player_line("040341")
+        assert result == {'license': '040341', 'name': ''}
+
+    def test_parse_player_line_empty(self):
+        """Test parse_player_line with empty string."""
+        result = parse_player_line("")
+        assert result is None
+
+    def test_validate_player_valid(self):
+        """Test validate_player with valid data."""
+        player = {'license': '061721', 'name': 'MENDIBURU Florian'}
+        assert validate_player(player) is True
+
+    def test_validate_player_invalid_license(self):
+        """Test validate_player with invalid license format."""
+        player = {'license': 'abc123', 'name': 'Test'}
+        assert validate_player(player) is False
+
+    def test_validate_player_missing_fields(self):
+        """Test validate_player with missing fields."""
+        player = {'license': '061721'}
+        assert validate_player(player) is False
+
+    def test_validate_players_mixed(self):
+        """Test validate_players with mixed valid/invalid data."""
+        players = [
+            {'license': '061721', 'name': 'MENDIBURU Florian'},
+            {'license': 'abc', 'name': 'Invalid'},
+            {'license': '063150', 'name': 'THICOIPE Bittor'},
+        ]
+        valid, invalid_indices = validate_players(players)
+        
+        assert len(valid) == 2
+        assert invalid_indices == [1]
