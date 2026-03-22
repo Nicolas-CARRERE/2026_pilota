@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DashboardFilters } from '../../../core/services/filter.service';
-import { CompetitionsService } from '../../../core/services/competitions.service';
-import { PlayersService } from '../../../core/services/players.service';
-import { CompetitionListItem } from '../../../shared/models/competition.model';
-import { PlayerStatsListItem } from '../../../shared/models/player.model';
+import { DashboardFilters } from '../../core/services/filter.service';
+import { CompetitionsService } from '../../core/services/competitions.service';
+import { PlayersService } from '../../core/services/players.service';
+import { CompetitionListItem } from '../../shared/models/competition.model';
+import { PlayerStatsListItem } from '../../shared/models/player.model';
 
 @Component({
   selector: 'app-filter-panel',
