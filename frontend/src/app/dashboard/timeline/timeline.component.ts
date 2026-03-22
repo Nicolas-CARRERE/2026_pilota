@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import { StatsService, TimelineStats } from '../../core/services/stats.service';
 import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
 
@@ -15,7 +15,7 @@ export class TimelineComponent implements OnInit {
   timeline: TimelineStats[] = [];
   loading = false;
 
-  public lineChartOptions: ChartConfiguration<'line'>['options'] = {
+  public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -24,7 +24,6 @@ export class TimelineComponent implements OnInit {
     },
   };
 
-  public lineChartType: ChartType = 'line';
   public lineChartData: ChartData<'line'> = { labels: [], datasets: [{ data: [], label: 'Games Over Time' }] };
 
   constructor(private statsService: StatsService, private filterService: DashboardFilterService) {}

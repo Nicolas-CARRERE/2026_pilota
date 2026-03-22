@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import { StatsService, PlayerStats } from '../../core/services/stats.service';
 import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
 
@@ -15,7 +15,7 @@ export class TopPlayersComponent implements OnInit {
   players: PlayerStats[] = [];
   loading = false;
 
-  public barChartOptions: ChartConfiguration<'bar'>['options'] = {
+  public barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -24,7 +24,6 @@ export class TopPlayersComponent implements OnInit {
     },
   };
 
-  public barChartType: ChartType = 'bar';
   public barChartData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], label: 'Wins' }] };
 
   constructor(private statsService: StatsService, private filterService: DashboardFilterService) {}

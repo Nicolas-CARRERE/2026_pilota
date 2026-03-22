@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import { StatsService, DisciplineStats } from '../../core/services/stats.service';
 import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
 
@@ -15,7 +15,7 @@ export class DisciplinesComponent implements OnInit {
   disciplines: DisciplineStats[] = [];
   loading = false;
 
-  public pieChartOptions: ChartConfiguration<'pie'>['options'] = {
+  public pieChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -24,7 +24,6 @@ export class DisciplinesComponent implements OnInit {
     },
   };
 
-  public pieChartType: ChartType = 'pie';
   public pieChartData: ChartData<'pie'> = { labels: [], datasets: [{ data: [], label: 'Games' }] };
 
   constructor(private statsService: StatsService, private filterService: DashboardFilterService) {}
