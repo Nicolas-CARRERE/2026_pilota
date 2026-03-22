@@ -30,5 +30,6 @@ export const routes: Routes = [
       { path: ':id', loadComponent: () => import('./features/championships/championship-detail/championship-detail.component').then(m => m.ChampionshipDetailComponent) },
     ],
   },
+  { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent) },
   { path: '**', redirectTo: '' },
 ];
