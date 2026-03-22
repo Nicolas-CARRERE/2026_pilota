@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PlayerStatsListItem, PlayerDetail } from '../models/player.model';
+import { PlayerStatsListItem, PlayerDetail } from '../../shared/models/player.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlayersService {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CompetitionListItem, CompetitionDetail } from '../models/competition.model';
+import { CompetitionListItem, CompetitionDetail } from '../../shared/models/competition.model';
 
 @Injectable({ providedIn: 'root' })
 export class CompetitionsService {
