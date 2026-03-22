@@ -1,32 +1,27 @@
-<div class="dashboard-container">
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
-    <div class="sidebar-header">
-      <h2>Filtres</h2>
-      <button class="toggle-btn" (click)="toggleSidebar()" aria-label="Toggle sidebar">
-        {{ sidebarCollapsed ? '▶' : '◀' }}
-      </button>
-    </div>
-    <app-filter-panel [filters]="filters" (filtersChange)="onFiltersChange($event)"></app-filter-panel>
-  </aside>
+<div class="dashboard">
+  <header class="dashboard-header">
+    <h1>Dashboard</h1>
+    <button (click)="toggleSidebar()" class="sidebar-toggle">
+      {{ sidebarCollapsed ? 'Show Filters' : 'Hide Filters' }}
+    </button>
+  </header>
 
-  <main class="dashboard-content">
-    <div class="dashboard-header">
-      <h1>Dashboard</h1>
-      <p class="subtitle">Statistiques Basque Pelota</p>
-    </div>
+  <div class="dashboard-content">
+    @if (!sidebarCollapsed) {
+      <aside class="filters-sidebar">
+        <app-filter-panel (filtersChange)="onFiltersChange($event)"></app-filter-panel>
+      </aside>
+    }
 
-    <app-stats-summary [filters]="filters"></app-stats-summary>
+    <main class="dashboard-main">
+      <app-stats-summary></app-stats-summary>
 
-    <div class="charts-grid">
-      <div class="chart-row">
-        <app-top-players [filters]="filters" class="chart-card"></app-top-players>
-        <app-top-clubs [filters]="filters" class="chart-card"></app-top-clubs>
+      <div class="charts-grid">
+        <app-top-players class="chart-card"></app-top-players>
+        <app-top-clubs class="chart-card"></app-top-clubs>
+        <app-timeline class="chart-card"></app-timeline>
+        <app-disciplines class="chart-card"></app-disciplines>
       </div>
-
-      <div class="chart-row">
-        <app-timeline [filters]="filters" class="chart-card"></app-timeline>
-        <app-disciplines [filters]="filters" class="chart-card"></app-disciplines>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
