@@ -20,7 +20,7 @@ export class DisciplinesComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: 'bottom' },
-      tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.parsed.y} games` } },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.parsed} games` } },
     },
   };
 

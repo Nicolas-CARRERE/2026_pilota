@@ -1,61 +1,56 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { DashboardFilters } from '../../core/services/filter.service';
-import { CompetitionsService } from '../../core/services/competitions.service';
-import { PlayersService } from '../../core/services/players.service';
-import { CompetitionListItem } from '../../shared/models/competition.model';
-import { PlayerStatsListItem } from '../../shared/models/player.model';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
+import { CompetitionsService, CompetitionListItem } from '../../core/services/competitions.service';
+import { PlayersService, PlayerStatsListItem } from '../../core/services/players.service';
 
 @Component({
   selector: 'app-filter-panel',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './filter-panel.component.html',
   styleUrl: './filter-panel.component.scss',
 })
 export class FilterPanelComponent implements OnInit {
-  @Input() filters: DashboardFilters = {};
-  @Output() filtersChange = new EventEmitter<DashboardFilters>();
-
+  filterForm: FormGroup;
   competitions: CompetitionListItem[] = [];
   players: PlayerStatsListItem[] = [];
-  phaseOptions = [
-    { value: '', label: 'Toutes' },
-    { value: 'Poules', label: 'Poules' },
-    { value: 'Barrage', label: 'Barrage' },
-    { value: '1/4 finale', label: '1/4 finale' },
-    { value: '1/2 finale', label: '1/2 finale' },
-    { value: 'Finale', label: 'Finale' },
-  ];
-
-  currentFilters: DashboardFilters = {};
 
   constructor(
+    private fb: FormBuilder,
+    private filterService: DashboardFilterService,
     private competitionsService: CompetitionsService,
     private playersService: PlayersService,
-  ) {}
+  ) {
+    this.filterForm = this.fb.group({
+      competition: [null],
+      discipline: [null],
+      season: [null],
+      phase: [null],
+    });
+  }
 
   ngOnInit(): void {
-    this.currentFilters = { ...this.filters };
-    this.loadOptions();
+    this.competitionsService.getList({ limit: 200 }).subscribe({
+      next: (res: { competitions: CompetitionListItem[] }) => {
+        this.competitions = res.competitions;
+      },
+    });
+    this.playersService.getList(200).subscribe({
+      next: (res: { players: PlayerStatsListItem[] }) => {
+        this.players = res.players;
+      },
+    });
   }
 
-  loadOptions(): void {
-    this.competitionsService.getList({ limit: 200 }).subscribe((res) => {
-      this.competitions = res.competitions ?? [];
-    });
-    this.playersService.getList(200).subscribe((res) => {
-      this.players = res.players ?? [];
-    });
-  }
-
-  onFilterChange(key: keyof DashboardFilters, value: string | number | undefined): void {
-    this.currentFilters = { ...this.currentFilters, [key]: value || undefined };
-    this.filtersChange.emit(this.currentFilters);
+  applyFilters(): void {
+    const filters: DashboardFilters = this.filterForm.value;
+    this.filterService.updateFilters(filters);
   }
 
   resetFilters(): void {
-    this.currentFilters = {};
-    this.filtersChange.emit(this.currentFilters);
+    this.filterForm.reset();
+    this.filterService.resetFilters();
   }
 }
