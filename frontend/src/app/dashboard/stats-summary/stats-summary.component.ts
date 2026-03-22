@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { StatsService, SummaryStats } from '../core/services/stats.service';
-import { DashboardFilterService, DashboardFilters } from '../core/services/filter.service';
+import { StatsService, SummaryStats } from '../../core/services/stats.service';
+import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
 
 @Component({
   selector: 'app-stats-summary',
