@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import { StatsService, PlayerStats } from '../../core/services/stats.service';
-import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
+import { StatsService, PlayerStats } from '../core/services/stats.service';
+import { DashboardFilterService, DashboardFilters } from '../core/services/filter.service';
 
 @Component({
   selector: 'app-top-players',

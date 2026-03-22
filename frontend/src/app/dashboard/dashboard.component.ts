@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
+import { DashboardFilterService, DashboardFilters } from '../core/services/filter.service';
 import { StatsSummaryComponent } from './stats-summary/stats-summary.component';
 import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 import { TopPlayersComponent } from './top-players/top-players.component';
