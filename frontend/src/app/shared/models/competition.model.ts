@@ -7,6 +7,7 @@ export interface CompetitionListItem {
   organizer?: { name: string };
   status?: string;
   _count?: { games: number };
+  label?: string;
 }
 
 export interface CompetitionDetail extends CompetitionListItem {
