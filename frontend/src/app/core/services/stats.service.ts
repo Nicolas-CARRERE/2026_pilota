@@ -12,10 +12,10 @@ export interface SummaryStats {
 
 export interface PlayerStats {
   id: string;
-  first_name: string;
-  last_name: string;
-  nickname?: string;
-  games_played: number;
+  firstName: string;
+  lastName: string;
+  nickname?: string | null;
+  gamesPlayed: number;
   wins: number;
   losses: number;
 }
@@ -23,8 +23,8 @@ export interface PlayerStats {
 export interface ClubStats {
   id: string;
   name: string;
-  short_name?: string;
-  games_played: number;
+  shortName?: string | null;
+  gamesPlayed: number;
   wins: number;
 }
 

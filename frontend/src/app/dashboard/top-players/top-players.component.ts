@@ -37,7 +37,7 @@ export class TopPlayersComponent implements OnInit {
     this.statsService.getTopPlayers(10, filters).subscribe({
       next: (response) => {
         this.players = response.players;
-        this.barChartData.labels = response.players.map((p) => `${p.first_name} ${p.last_name}`);
+        this.barChartData.labels = response.players.map((p) => `${p.firstName} ${p.lastName}`);
         this.barChartData.datasets[0].data = response.players.map((p) => p.wins);
         this.loading = false;
       },

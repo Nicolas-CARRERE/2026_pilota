@@ -37,8 +37,8 @@ export class TopClubsComponent implements OnInit {
     this.statsService.getTopClubs(10, filters).subscribe({
       next: (response) => {
         this.clubs = response.clubs;
-        this.barChartData.labels = response.clubs.map((c) => c.short_name || c.name);
-        this.barChartData.datasets[0].data = response.clubs.map((c) => c.games_played);
+        this.barChartData.labels = response.clubs.map((c) => c.shortName || c.name);
+        this.barChartData.datasets[0].data = response.clubs.map((c) => c.gamesPlayed);
         this.loading = false;
       },
       error: () => { this.loading = false; },

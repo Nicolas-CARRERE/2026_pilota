@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CompetitionListItem, CompetitionDetail } from '../../shared/models/competition.model';
+import { CompetitionListItem, CompetitionDetail, CompetitionsListResponse } from '../../shared/models/competition.model';
 
 @Injectable({ providedIn: 'root' })
 export class CompetitionsService {
@@ -9,11 +9,11 @@ export class CompetitionsService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getList(params?: { limit?: number; offset?: number }): Observable<{ competitions: CompetitionListItem[]; total: number }> {
+  getList(params?: { limit?: number; offset?: number }): Observable<CompetitionsListResponse> {
     let httpParams = new HttpParams();
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params?.offset) httpParams = httpParams.set('offset', params.offset.toString());
-    return this.http.get<{ competitions: CompetitionListItem[]; total: number }>(this.base, { params: httpParams });
+    return this.http.get<CompetitionsListResponse>(this.base, { params: httpParams });
   }
 
   getById(id: string): Observable<CompetitionDetail> {
