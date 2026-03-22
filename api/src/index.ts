@@ -12,6 +12,7 @@ import { analyticsRouter } from "./routes/analytics.js";
 import { competitionsRouter } from "./routes/competitions.js";
 import { gamesRouter } from "./routes/games.js";
 import { scrapeRouter } from "./routes/scrape.js";
+import { statsRouter } from "./routes/stats.js";
 import { teamsRouter } from "./routes/teams.js";
 
 const app = express();
@@ -42,6 +43,7 @@ app.use("/games", gamesRouter);
 app.use("/competitions", competitionsRouter);
 app.use("/teams", teamsRouter);
 app.use("/analytics", analyticsRouter);
+app.use("/stats", statsRouter);
 
 const apiServerPort = process.env.PELOTA_API_SERVER_PORT ?? 3000;
 app.listen(apiServerPort, () => {
