@@ -33,10 +33,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onFiltersChange(newFilters: DashboardFilters): void {
-    this.filterService.updateFilters(newFilters);
-  }
-
   toggleSidebar(): void {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
