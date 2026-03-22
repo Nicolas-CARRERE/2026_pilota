@@ -1,23 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {
-  PlayerDetail,
-  PlayersListResponse,
-} from '../../shared/models/player.model';
-
+export interface PlayerStatsListItem { id: string; first_name: string; last_name: string; nickname?: string; license?: string; }
 @Injectable({ providedIn: 'root' })
 export class PlayersService {
-  private readonly base = '/analytics/players';
-
-  constructor(private http: HttpClient) {}
-
-  getList(limit = 50): Observable<PlayersListResponse> {
-    const params = new HttpParams().set('limit', String(limit));
-    return this.http.get<PlayersListResponse>(this.base, { params });
-  }
-
-  getById(id: string): Observable<PlayerDetail> {
-    return this.http.get<PlayerDetail>(`${this.base}/${id}`);
+  private readonly base = '/players';
+  constructor(private readonly http: HttpClient) {}
+  getList(limit = 50): Observable<{ players: PlayerStatsListItem[]; total: number }> {
+    return this.http.get<{ players: PlayerStatsListItem[]; total: number }>(`${this.base}?limit=${limit}`);
   }
 }
