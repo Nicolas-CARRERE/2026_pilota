@@ -1,0 +1,27 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <h1>Dashboard</h1>
+    <button (click)="toggleSidebar()" class="sidebar-toggle">
+      {{ sidebarCollapsed ? 'Show Filters' : 'Hide Filters' }}
+    </button>
+  </header>
+
+  <div class="dashboard-content">
+    @if (!sidebarCollapsed) {
+      <aside class="filters-sidebar">
+        <app-filter-panel></app-filter-panel>
+      </aside>
+    }
+
+    <main class="dashboard-main">
+      <app-stats-summary></app-stats-summary>
+
+      <div class="charts-grid">
+        <app-top-players class="chart-card"></app-top-players>
+        <app-top-clubs class="chart-card"></app-top-clubs>
+        <app-timeline class="chart-card"></app-timeline>
+        <app-disciplines class="chart-card"></app-disciplines>
+      </div>
+    </main>
+  </div>
+</div>

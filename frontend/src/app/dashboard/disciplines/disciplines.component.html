@@ -1,0 +1,12 @@
+<div class="disciplines-card">
+  <h3>Disciplines</h3>
+  @if (loading) {
+    <p>Loading...</p>
+  } @else if (disciplines.length) {
+    <div class="chart-container">
+      <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas>
+    </div>
+  } @else {
+    <p>No data available</p>
+  }
+</div>

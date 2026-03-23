@@ -1,19 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {
-  CompetitionDetail,
-  CompetitionsListResponse,
-} from '../../shared/models/competition.model';
-
-export interface CompetitionsListParams {
-  disciplineId?: string;
-  organizerId?: string;
-  status?: string;
-  year?: number;
-  limit?: number;
-  offset?: number;
-}
+import { CompetitionListItem, CompetitionDetail, CompetitionsListResponse } from '../../shared/models/competition.model';
 
 @Injectable({ providedIn: 'root' })
 export class CompetitionsService {
@@ -21,18 +9,11 @@ export class CompetitionsService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getList(
-    params: CompetitionsListParams = {},
-  ): Observable<CompetitionsListResponse> {
+  getList(params?: { limit?: number; offset?: number }): Observable<CompetitionsListResponse> {
     let httpParams = new HttpParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== '' && value !== null) {
-        httpParams = httpParams.set(key, String(value));
-      }
-    });
-    return this.http.get<CompetitionsListResponse>(this.base, {
-      params: httpParams,
-    });
+    if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
+    if (params?.offset) httpParams = httpParams.set('offset', params.offset.toString());
+    return this.http.get<CompetitionsListResponse>(this.base, { params: httpParams });
   }
 
   getById(id: string): Observable<CompetitionDetail> {

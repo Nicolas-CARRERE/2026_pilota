@@ -1,0 +1,20 @@
+<div class="top-players-card">
+  <h3>Top Players</h3>
+  @if (loading) {
+    <p>Loading...</p>
+  } @else if (players.length) {
+    <div class="chart-container">
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
+    </div>
+    <div class="players-list">
+      @for (player of players; track player.id) {
+        <div class="player-item">
+          <span class="player-name">{{ player.firstName }} {{ player.lastName }}</span>
+          <span class="player-wins">{{ player.wins }} wins</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <p>No data available</p>
+  }
+</div>

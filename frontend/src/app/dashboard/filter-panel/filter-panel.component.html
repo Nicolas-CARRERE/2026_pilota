@@ -1,0 +1,38 @@
+<div class="filter-panel">
+  <h3>Filters</h3>
+  <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <div class="form-group">
+      <label for="competition">Competition:</label>
+      <select id="competition" formControlName="competition">
+        <option [ngValue]="null">All</option>
+        @for (comp of competitions; track comp.id) {
+          <option [value]="comp.id">{{ comp.year.year }} - {{ comp.organizer.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="discipline">Discipline:</label>
+      <select id="discipline" formControlName="discipline">
+        <option [ngValue]="null">All</option>
+        @for (disc of disciplines; track disc.id) {
+          <option [value]="disc.id">{{ disc.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="season">Season:</label>
+      <input type="number" id="season" formControlName="season" placeholder="Year" />
+    </div>
+    <div class="form-group">
+      <label for="phase">Phase:</label>
+      <select id="phase" formControlName="phase">
+        <option [ngValue]="null">All</option>
+        <option value="regular">Regular</option>
+        <option value="playoffs">Playoffs</option>
+        <option value="final">Final</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="!filterForm.valid">Apply</button>
+    <button type="button" (click)="resetFilters()">Reset</button>
+  </form>
+</div>
