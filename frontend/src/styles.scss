@@ -47,6 +47,11 @@ a {
     color: var(--pelota-green-dark);
     text-decoration: underline;
   }
+  &:focus-visible {
+    outline: 3px solid var(--pelota-green);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 .container {
@@ -64,6 +69,10 @@ a {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
+  &:focus-visible {
+    outline: 3px solid var(--pelota-green);
+    outline-offset: 2px;
+  }
   &--primary {
     background: var(--pelota-green);
     color: var(--pelota-white);
@@ -130,4 +139,18 @@ a {
   &:focus {
     top: 0;
   }
+}
+
+// Global focus-visible styles for accessibility
+:focus-visible {
+  outline: 3px solid var(--pelota-green);
+  outline-offset: 2px;
+}
+
+// Interactive elements focus states
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--pelota-green);
+  outline-offset: 1px;
 }
