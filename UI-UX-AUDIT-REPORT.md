@@ -259,6 +259,38 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 
 ---
 
+## QA Recommendations Implementation
+
+### ✅ Recommendation 1: Visual Skip-Link Enhancement (COMPLETED 2026-03-27)
+**Status:** ✅ IMPLEMENTED  
+**Files Modified:** `frontend/src/styles.scss`  
+**Changes:**
+- Increased border thickness (3px white border)
+- Added background color change on focus (darker green → green)
+- Set z-index to 9999 to appear above all content
+- Added smooth transition with transform effect
+- Added box-shadow for depth on focus-visible
+- Increased padding and font-weight for better visibility
+
+**Test Results:** All 15 accessibility tests pass
+
+### ✅ Recommendation 2: Unit Tests for Accessibility Features (COMPLETED 2026-03-27)
+**Status:** ✅ IMPLEMENTED  
+**Files Created:** `frontend/src/app/accessibility.spec.ts`  
+**Tests Added:**
+- ✅ Test skip-link exists and is clickable
+- ✅ Test skip-link has correct href (`#main`)
+- ✅ Test skip-link has French text "Aller au contenu principal"
+- ✅ Test focus-visible states apply on keyboard navigation
+- ✅ Test loading spinner availability
+- ✅ Test mobile breakpoint triggers card stacking (600px)
+- ✅ Test retry button calls reload function
+- ✅ Test component integration with template structure
+
+**Test Results:** 15/15 tests passing (Chrome Headless)
+
+---
+
 ## Recommended Implementation Order
 
 **Phase 1 (Critical):** #1, #4, #9, #11, #14, #15  
