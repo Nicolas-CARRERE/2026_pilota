@@ -70,7 +70,7 @@ router.get("/summary", async (request: Request, response: Response) => {
     const where = buildGameWhereClause({
       competition,
       discipline,
-      season,
+      season: season ? parseInt(season, 10) : undefined,
       phase,
       date_from,
       date_to,
@@ -160,9 +160,9 @@ function buildPlayerStatsFromGames(games: Array<{
     const participants = new Set<string>([...side1, ...side2]);
     const winningSide =
       game.winnerId === game.player1Id
-        ? side1
+        ? 1
         : game.winnerId === game.player2Id
-          ? side2
+          ? 2
           : null;
 
     const winners = winningSide === 1
@@ -204,7 +204,7 @@ router.get("/players", async (request: Request, response: Response) => {
     const where = buildGameWhereClause({
       competition,
       discipline,
-      season,
+      season: season ? parseInt(season, 10) : undefined,
       phase,
       date_from,
       date_to,
@@ -310,7 +310,7 @@ router.get("/clubs", async (request: Request, response: Response) => {
     const where = buildGameWhereClause({
       competition,
       discipline,
-      season,
+      season: season ? parseInt(season, 10) : undefined,
       phase,
       date_from,
       date_to,
@@ -416,7 +416,7 @@ router.get("/competitions", async (request: Request, response: Response) => {
     const where = buildGameWhereClause({
       competition,
       discipline,
-      season,
+      season: season ? parseInt(season, 10) : undefined,
       phase,
       date_from,
       date_to,
@@ -485,7 +485,7 @@ router.get("/disciplines", async (request: Request, response: Response) => {
     const where = buildGameWhereClause({
       competition,
       discipline,
-      season,
+      season: season ? parseInt(season, 10) : undefined,
       phase,
       date_from,
       date_to,
@@ -555,7 +555,7 @@ router.get("/timeline", async (request: Request, response: Response) => {
     const where = buildGameWhereClause({
       competition,
       discipline,
-      season,
+      season: season ? parseInt(season, 10) : undefined,
       phase,
       date_from,
       date_to,

@@ -1,6 +1,12 @@
 <div class="container">
   <h1>Équipes</h1>
-  <p class="lead">Liste des équipes par club et discipline.</p>
+  <p class="lead">Liste des équipes.</p>
+
+  <app-filter
+    [config]="filterConfig"
+    [filters]="filters"
+    (filtersChange)="applyFilters($event)"
+  />
 
   @if (loading) {
     <app-loading></app-loading>
@@ -14,13 +20,7 @@
         <li class="card team-card">
           <a [routerLink]="['/teams', t.id]" class="team-card-link">
             <span class="team-name">{{ t.name }}</span>
-            @if (t.club) {
-              <span class="team-club">{{ t.club.name }}</span>
-            }
-            <span class="team-discipline">{{ t.discipline.name }}</span>
-            @if (t._count?.teamPlayers) {
-              <span class="team-count">{{ t._count?.teamPlayers }} joueur(s)</span>
-            }
+            <span class="team-info">{{ t.shortName || '' }}</span>
           </a>
         </li>
       }

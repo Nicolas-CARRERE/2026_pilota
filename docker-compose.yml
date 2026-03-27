@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: pilota-db
+    environment:
+      POSTGRES_USER: pilota
+      POSTGRES_PASSWORD: pilota_secret
+      POSTGRES_DB: pilota
+    ports:
+      - "5432:5432"
+    volumes:
+      - pilota_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pilota"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pilota-backend
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql://pilota:pilota_secret@db:5432/pilota
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"
+
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pilota-backend-test
+    environment:
+      DATABASE_URL: postgresql://pilota:pilota_secret@db:5432/pilota
+      PYTHONUNBUFFERED: 1
+      CTPB_DEV_MODE: true
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             pytest tests/ -v"
+    network_mode: "service:db"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pilota-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: pilota-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://pilota:pilota_secret@db:5432/pilota
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pilota_db_data:

@@ -2,57 +2,11 @@
   <h1>Résultats</h1>
   <p class="lead">Liste des parties avec filtres par compétition et joueur.</p>
 
-  <div class="filters filters--compact card">
-    <form (ngSubmit)="applyFilters()" class="filters-form">
-      @if (showCompetitionSelect) {
-        <label class="filter-label">
-          Compétition
-          <select [(ngModel)]="filters.competitionId" name="competitionId" (change)="applyFilters()">
-            <option value="">Toutes</option>
-            @for (c of competitions | orderCompetitionsByLabel; track c.id) {
-              <option [value]="c.id">{{ c.year.year }} – {{ c.discipline.name }} ({{ c.organizer.name }})</option>
-            }
-          </select>
-        </label>
-      } @else if (singleCompetition) {
-        <span class="filter-badge">Championnat : {{ singleCompetition.year.year }} – {{ singleCompetition.discipline.name }}</span>
-      }
-      @if (showPlayerSelect) {
-        <label class="filter-label">
-          Joueur
-          <select [(ngModel)]="filters.playerId" name="playerId" (change)="applyFilters()">
-            <option value="">Tous</option>
-            @for (p of players | orderPlayersByName; track p.id) {
-              <option [value]="p.id">{{ p.firstName }} {{ p.lastName }}</option>
-            }
-          </select>
-        </label>
-      } @else if (singlePlayer) {
-        <span class="filter-badge">Joueur : {{ singlePlayer.firstName }} {{ singlePlayer.lastName }}</span>
-      }
-      <label class="filter-label">
-        Statut
-        <select [(ngModel)]="filters.status" name="status" (change)="applyFilters()">
-          @for (opt of statusOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
-          }
-        </select>
-      </label>
-      @if (showPhaseSelect) {
-        <label class="filter-label">
-          Phase
-          <select [(ngModel)]="filters.phase" name="phase" (change)="applyFilters()">
-            @for (opt of phaseOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-        </label>
-      } @else if (singlePhase) {
-        <span class="filter-badge">Phase : {{ singlePhase.label }}</span>
-      }
-      <button type="submit" class="btn btn--primary btn--compact">Appliquer</button>
-    </form>
-  </div>
+  <app-filter
+    [config]="{ showCompetition: true, showPhase: true, showStatus: true, compact: true }"
+    [filters]="filters"
+    (filtersChange)="applyFilters($event)"
+  />
 
   @if (loading) {
     <app-loading></app-loading>

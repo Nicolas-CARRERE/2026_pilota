@@ -1,0 +1,68 @@
+<div class="filters" [class.filters--compact]="config.compact">
+  <form class="filters-form" (ngSubmit)="filtersChange.emit(filters)">
+    @if (config.showCompetition) {
+      <label class="filter-label">
+        Compétition
+        <select [(ngModel)]="filters['competitionId']" name="competitionId" (ngModelChange)="onFilterChange('competitionId', $event)">
+          <option value="">Toutes</option>
+          @for (c of competitions; track c.id) {
+            <option [value]="c.id">{{ c.year.year }} – {{ c.discipline.name }} ({{ c.organizer.name }})</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (config.showDiscipline) {
+      <label class="filter-label">
+        Discipline
+        <select [(ngModel)]="filters['discipline']" name="discipline" (ngModelChange)="onFilterChange('discipline', $event)">
+          @for (opt of disciplineOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (config.showSeason) {
+      <label class="filter-label">
+        Saison
+        <input type="number" [(ngModel)]="filters['season']" name="season" placeholder="Année" (ngModelChange)="onFilterChange('season', $event)" />
+      </label>
+    }
+
+    @if (config.showPhase) {
+      <label class="filter-label">
+        Phase
+        <select [(ngModel)]="filters['phase']" name="phase" (ngModelChange)="onFilterChange('phase', $event)">
+          @for (opt of phaseOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (config.showDateRange) {
+      <label class="filter-label">
+        Date début
+        <input type="date" [(ngModel)]="filters['date_from']" name="date_from" (ngModelChange)="onFilterChange('date_from', $event)" />
+      </label>
+      <label class="filter-label">
+        Date fin
+        <input type="date" [(ngModel)]="filters['date_to']" name="date_to" (ngModelChange)="onFilterChange('date_to', $event)" />
+      </label>
+    }
+
+    @if (config.showStatus) {
+      <label class="filter-label">
+        Statut
+        <select [(ngModel)]="filters['status']" name="status" (ngModelChange)="onFilterChange('status', $event)">
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <button type="button" class="btn btn--outline btn--small" (click)="resetFilters()">Réinitialiser</button>
+  </form>
+</div>

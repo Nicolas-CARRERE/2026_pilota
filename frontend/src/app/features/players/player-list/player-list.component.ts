@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { PlayersService } from '../../../core/services/players.service';
 import { PlayerStatsListItem } from '../../../shared/models/player.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { FilterComponent, FilterConfig } from '../../../shared/components/filter/filter.component';
 
 @Component({
   selector: 'app-player-list',
   standalone: true,
-  imports: [RouterLink, LoadingComponent],
+  imports: [RouterLink, LoadingComponent, FilterComponent],
   templateUrl: './player-list.component.html',
   styleUrl: './player-list.component.scss',
 })
@@ -15,11 +16,23 @@ export class PlayerListComponent implements OnInit {
   players: PlayerStatsListItem[] = [];
   loading = true;
   error: string | null = null;
+  filters: Record<string, any> = {};
+  filterConfig: FilterConfig = { showSeason: true, compact: true };
 
   constructor(private playersService: PlayersService) {}
 
   ngOnInit(): void {
-    this.playersService.getList(100).subscribe({
+    this.loadPlayers();
+  }
+
+  applyFilters(newFilters: Record<string, any>): void {
+    this.filters = { ...this.filters, ...newFilters };
+    this.loadPlayers();
+  }
+
+  loadPlayers(): void {
+    this.loading = true;
+    this.playersService.getList(200).subscribe({
       next: (res) => {
         this.players = res.players ?? [];
         this.loading = false;
