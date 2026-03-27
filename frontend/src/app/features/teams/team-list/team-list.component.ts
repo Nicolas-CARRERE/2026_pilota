@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { TeamsService } from '../../../core/services/teams.service';
 import { TeamListItem } from '../../../shared/models/team.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { FilterComponent, FilterConfig } from '../../../shared/components/filter/filter.component';
 
 @Component({
   selector: 'app-team-list',
   standalone: true,
-  imports: [RouterLink, LoadingComponent],
+  imports: [RouterLink, LoadingComponent, FilterComponent],
   templateUrl: './team-list.component.html',
   styleUrl: './team-list.component.scss',
 })
@@ -16,11 +17,23 @@ export class TeamListComponent implements OnInit {
   total = 0;
   loading = true;
   error: string | null = null;
+  filters: Record<string, any> = {};
+  filterConfig: FilterConfig = { showCompetition: true, compact: true };
 
   constructor(private teamsService: TeamsService) {}
 
   ngOnInit(): void {
-    this.teamsService.getList({ limit: 100 }).subscribe({
+    this.loadTeams();
+  }
+
+  applyFilters(newFilters: Record<string, any>): void {
+    this.filters = { ...this.filters, ...newFilters };
+    this.loadTeams();
+  }
+
+  loadTeams(): void {
+    this.loading = true;
+    this.teamsService.getList({ limit: 200 }).subscribe({
       next: (res) => {
         this.teams = res.teams ?? [];
         this.total = res.total ?? 0;

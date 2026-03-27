@@ -79,21 +79,37 @@
     text-decoration: none;
     color: var(--pelota-green);
   }
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 0.75rem;
+  }
 }
 
 .game-date {
   font-size: 0.875rem;
   color: var(--pelota-gray-700);
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
+  }
 }
 
 .game-versus .vs {
   color: var(--pelota-red);
   font-weight: 700;
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 }
 
 .score {
   font-weight: 600;
   color: var(--pelota-green);
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 }
 
 .game-phase {
@@ -102,6 +118,10 @@
   padding: 0.2rem 0.4rem;
   background: var(--pelota-gray-100);
   border-radius: 4px;
+  @media (max-width: 600px) {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+  }
 }
 
 .status {
@@ -116,6 +136,11 @@
   &.status-in_progress {
     background: rgba(0, 140, 69, 0.15);
     color: var(--pelota-green);
+  }
+  @media (max-width: 600px) {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    text-align: center;
   }
 }
 

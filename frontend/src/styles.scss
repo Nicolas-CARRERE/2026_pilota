@@ -47,6 +47,11 @@ a {
     color: var(--pelota-green-dark);
     text-decoration: underline;
   }
+  &:focus-visible {
+    outline: 3px solid var(--pelota-green);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 .container {
@@ -64,6 +69,10 @@ a {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
+  &:focus-visible {
+    outline: 3px solid var(--pelota-green);
+    outline-offset: 2px;
+  }
   &--primary {
     background: var(--pelota-green);
     color: var(--pelota-white);
@@ -102,13 +111,7 @@ a {
   }
 }
 
-.loading-spinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  color: var(--pelota-gray-700);
-}
+
 
 .error-message {
   padding: 1rem;
@@ -116,4 +119,53 @@ a {
   color: var(--pelota-red-dark);
   border-radius: 4px;
   border-left: 4px solid var(--pelota-red);
+  p {
+    margin: 0 0 0.75rem;
+  }
+  .btn {
+    margin-top: 0.5rem;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  background: var(--pelota-green-dark);
+  color: var(--pelota-white);
+  padding: 0.875rem 1.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+  z-index: 9999;
+  border: 3px solid var(--pelota-white);
+  border-top: none;
+  border-radius: 0 0 4px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: top 0.3s ease-in-out, background-color 0.2s, transform 0.2s;
+  &:focus {
+    top: 0;
+    background: var(--pelota-green);
+    transform: translateY(2px);
+    outline: none;
+  }
+  &:focus-visible {
+    top: 0;
+    background: var(--pelota-green);
+    border-color: var(--pelota-white);
+    box-shadow: 0 6px 16px rgba(0, 140, 69, 0.4);
+  }
+}
+
+// Global focus-visible styles for accessibility
+:focus-visible {
+  outline: 3px solid var(--pelota-green);
+  outline-offset: 2px;
+}
+
+// Interactive elements focus states
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--pelota-green);
+  outline-offset: 1px;
 }

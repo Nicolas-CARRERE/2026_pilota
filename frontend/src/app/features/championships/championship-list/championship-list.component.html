@@ -1,11 +1,20 @@
 <div class="container">
   <h1>Championnats</h1>
-  <p class="lead">Compétitions par discipline, organisateur et année.</p>
+  <p class="lead">Liste des championnats.</p>
+
+  <app-filter
+    [config]="filterConfig"
+    [filters]="filters"
+    (filtersChange)="applyFilters($event)"
+  />
 
   @if (loading) {
     <app-loading></app-loading>
   } @else if (error) {
-    <div class="error-message">{{ error }}</div>
+    <div class="error-message">
+      <p>{{ error }}</p>
+      <button type="button" class="btn btn--outline" (click)="loadCompetitions()">Réessayer</button>
+    </div>
   } @else if (competitions.length === 0) {
     <p>Aucun championnat trouvé.</p>
   } @else {
@@ -14,10 +23,7 @@
         <li class="card championship-card">
           <a [routerLink]="['/championships', c.id]" class="championship-card-link">
             <span class="championship-title">{{ title(c) }}</span>
-            <span class="championship-meta">{{ c.status }}</span>
-            @if (c._count?.games !== undefined) {
-              <span class="championship-count">{{ c._count?.games }} partie(s)</span>
-            }
+            <span class="championship-meta">{{ c.startDate | formatDate }}</span>
           </a>
         </li>
       }

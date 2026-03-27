@@ -4,11 +4,12 @@ import { CompetitionsService } from '../../../core/services/competitions.service
 import { CompetitionListItem } from '../../../shared/models/competition.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { FilterComponent, FilterConfig } from '../../../shared/components/filter/filter.component';
 
 @Component({
   selector: 'app-championship-list',
   standalone: true,
-  imports: [RouterLink, FormatDatePipe, LoadingComponent],
+  imports: [RouterLink, FormatDatePipe, LoadingComponent, FilterComponent],
   templateUrl: './championship-list.component.html',
   styleUrl: './championship-list.component.scss',
 })
@@ -17,11 +18,23 @@ export class ChampionshipListComponent implements OnInit {
   total = 0;
   loading = true;
   error: string | null = null;
+  filters: Record<string, any> = {};
+  filterConfig: FilterConfig = { showDiscipline: true, showSeason: true, compact: true };
 
   constructor(private competitionsService: CompetitionsService) {}
 
   ngOnInit(): void {
-    this.competitionsService.getList({ limit: 100 }).subscribe({
+    this.loadCompetitions();
+  }
+
+  applyFilters(newFilters: Record<string, any>): void {
+    this.filters = { ...this.filters, ...newFilters };
+    this.loadCompetitions();
+  }
+
+  loadCompetitions(): void {
+    this.loading = true;
+    this.competitionsService.getList({ limit: 200 }).subscribe({
       next: (res) => {
         this.competitions = res.competitions ?? [];
         this.total = res.total ?? 0;

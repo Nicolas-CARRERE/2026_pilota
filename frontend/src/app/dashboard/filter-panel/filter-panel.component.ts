@@ -1,63 +1,35 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FilterComponent, FilterConfig } from '../../shared/components/filter/filter.component';
 import { DashboardFilterService, DashboardFilters } from '../../core/services/filter.service';
-import { CompetitionsService } from '../../core/services/competitions.service';
-import { PlayersService } from '../../core/services/players.service';
-import { CompetitionListItem } from '../../shared/models/competition.model';
-import { PlayerStatsListItem } from '../../shared/models/player.model';
 
 @Component({
   selector: 'app-filter-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [FilterComponent],
   templateUrl: './filter-panel.component.html',
   styleUrl: './filter-panel.component.scss',
 })
 export class FilterPanelComponent implements OnInit {
-  filterForm: FormGroup;
-  competitions: CompetitionListItem[] = [];
-  players: PlayerStatsListItem[] = [];
-  disciplines = [
-    { id: 'main-nue', name: 'Main Nue' },
-    { id: 'chistera', name: 'Chistera' },
-    { id: 'paleta', name: 'Paleta' },
-  ];
+  filters: DashboardFilters = {};
+  filterConfig: FilterConfig = {
+    showCompetition: true,
+    showDiscipline: true,
+    showSeason: true,
+    showPhase: true,
+    showDateRange: true,
+    compact: false,
+  };
 
-  constructor(
-    private fb: FormBuilder,
-    private filterService: DashboardFilterService,
-    private competitionsService: CompetitionsService,
-    private playersService: PlayersService,
-  ) {
-    this.filterForm = this.fb.group({
-      competition: [null],
-      discipline: [null],
-      season: [null],
-      phase: [null],
-    });
-  }
+  constructor(private filterService: DashboardFilterService) {}
 
   ngOnInit(): void {
-    this.competitionsService.getList({ limit: 200 }).subscribe({
-      next: (res: { competitions: CompetitionListItem[] }) => {
-        this.competitions = res.competitions;
-      },
-    });
-    this.playersService.getList(200).subscribe({
-      next: (res: { players: PlayerStatsListItem[] }) => {
-        this.players = res.players;
-      },
+    this.filterService.getFilters().subscribe((f: DashboardFilters) => {
+      this.filters = { ...f };
     });
   }
 
-  applyFilters(): void {
-    const filters: DashboardFilters = this.filterForm.value;
-    this.filterService.updateFilters(filters);
-  }
-
-  resetFilters(): void {
-    this.filterForm.reset();
-    this.filterService.resetFilters();
+  onFiltersChange(newFilters: Record<string, any>): void {
+    this.filters = { ...this.filters, ...newFilters };
+    this.filterService.updateFilters(this.filters);
   }
 }

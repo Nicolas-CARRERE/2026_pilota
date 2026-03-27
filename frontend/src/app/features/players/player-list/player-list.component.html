@@ -1,11 +1,20 @@
 <div class="container">
   <h1>Joueurs</h1>
-  <p class="lead">Statistiques par joueur : parties jouées, victoires et défaites.</p>
+  <p class="lead">Liste des joueurs.</p>
+
+  <app-filter
+    [config]="filterConfig"
+    [filters]="filters"
+    (filtersChange)="applyFilters($event)"
+  />
 
   @if (loading) {
     <app-loading></app-loading>
   } @else if (error) {
-    <div class="error-message">{{ error }}</div>
+    <div class="error-message">
+      <p>{{ error }}</p>
+      <button type="button" class="btn btn--outline" (click)="loadPlayers()">Réessayer</button>
+    </div>
   } @else if (players.length === 0) {
     <p>Aucun joueur trouvé.</p>
   } @else {
@@ -14,7 +23,7 @@
         <li class="card player-card">
           <a [routerLink]="['/players', p.id]" class="player-card-link">
             <span class="player-name">{{ displayName(p) }}</span>
-            <span class="player-stats">{{ p.gamesPlayed }} parties · {{ p.wins }}V – {{ p.losses }}D</span>
+            <span class="player-stats">{{ p.gamesPlayed }} parties · {{ p.wins }} victoires</span>
           </a>
         </li>
       }
