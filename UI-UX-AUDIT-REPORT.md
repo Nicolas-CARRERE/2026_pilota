@@ -65,6 +65,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** High
 - **Effort:** S
 - **Files:** `src/app/app.component.html`, `src/styles.scss`
+- **Status:** ✅ COMPLETED — Added "Aller au contenu principal" skip link, hidden until focused
 
 ---
 
@@ -133,6 +134,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** High
 - **Effort:** S
 - **Files:** `src/app/features/games/game-list/game-list.component.scss`
+- **Status:** ✅ COMPLETED — Stacks vertically on screens < 600px, increased touch targets
 
 #### #12: Filter Panel Overflows on Small Screens
 - **Issue:** Filter inputs wrap poorly below 400px width
@@ -169,6 +171,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** High
 - **Effort:** S
 - **Files:** `src/styles.scss`
+- **Status:** ✅ COMPLETED — Added 3px green outline on all interactive elements (buttons, links, inputs)
 
 #### #16: Color Contrast Issues (Potential)
 - **Issue:** Green `#008C45` on white may fail WCAG AA for small text
@@ -197,6 +200,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** S
 - **Files:** `src/app/shared/components/loading/loading.component.ts`
+- **Status:** ✅ COMPLETED — Added CSS spinner with smooth rotation animation (0.8s)
 
 #### #19: No Skeleton Screens
 - **Issue:** Content jumps when loading completes
@@ -213,6 +217,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** S
 - **Files:** All list/detail components
+- **Status:** ✅ COMPLETED — Added "Réessayer" button to game, player, team, championship lists
 
 ---
 
@@ -246,11 +251,11 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 
 ## Quick Wins (S Effort, High Impact)
 
-1. **#4: Skip-to-content link** — 30 min
-2. **#15: Focus states** — 1 hour
-3. **#18: Loading spinner** — 1 hour
-4. **#11: Mobile game cards** — 1 hour
-5. **#20: Retry button on errors** — 1 hour
+✅ **1. #4: Skip-to-content link** — COMPLETED (2026-03-27)
+✅ **2. #15: Focus states** — COMPLETED (2026-03-27)
+✅ **3. #18: Loading spinner** — COMPLETED (2026-03-27)
+✅ **4. #11: Mobile game cards** — COMPLETED (2026-03-27)
+✅ **5. #20: Retry button on errors** — COMPLETED (2026-03-27)
 
 ---
 
