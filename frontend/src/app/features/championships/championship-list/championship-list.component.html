@@ -11,7 +11,10 @@
   @if (loading) {
     <app-loading></app-loading>
   } @else if (error) {
-    <div class="error-message">{{ error }}</div>
+    <div class="error-message">
+      <p>{{ error }}</p>
+      <button type="button" class="btn btn--outline" (click)="loadCompetitions()">Réessayer</button>
+    </div>
   } @else if (competitions.length === 0) {
     <p>Aucun championnat trouvé.</p>
   } @else {

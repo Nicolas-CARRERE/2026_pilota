@@ -11,7 +11,10 @@
   @if (loading) {
     <app-loading></app-loading>
   } @else if (error) {
-    <div class="error-message">{{ error }}</div>
+    <div class="error-message">
+      <p>{{ error }}</p>
+      <button type="button" class="btn btn--outline" (click)="loadGames()">Réessayer</button>
+    </div>
   } @else if (games.length === 0) {
     <p>Aucune partie trouvée.</p>
   } @else {

@@ -119,6 +119,12 @@ a {
   color: var(--pelota-red-dark);
   border-radius: 4px;
   border-left: 4px solid var(--pelota-red);
+  p {
+    margin: 0 0 0.75rem;
+  }
+  .btn {
+    margin-top: 0.5rem;
+  }
 }
 
 .skip-link {
