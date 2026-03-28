@@ -7,7 +7,7 @@ DISCIPLINE_PATTERNS = [
     r"Place\s*Libre\s*/\s*Chistera\s*Joko\s*Garbi",
     r"Place\s*Libre\s*/\s*Grand\s*Chistera",
     r"Trinquet\s*/\s*Main\s*Nue",
-    r"Place\s*Libre", r"Main\s*Nue", r"Chistera", r"Joko\s*Garbi",
+    r"Place\s*Libre", r"Trinquet", r"Main\s*Nue", r"Chistera", r"Joko\s*Garbi",
 ]
 
 ORGANIZATION_KEYWORDS = ["CTPB", "FFPB", "Comité", "Fédération"]
