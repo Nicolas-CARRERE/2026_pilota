@@ -16,6 +16,48 @@ npm install
 npm run dev
 ```
 
+## Test Mode (Development Only)
+
+⚠️ **WARNING**: Test mode endpoints are for development/testing ONLY. Never enable in production.
+
+To enable test mode, set one of these environment variables:
+```bash
+TEST_MODE=true
+# or
+DEV_MODE=true
+```
+
+### Available Test Endpoints
+
+#### POST /api/test/purge-database
+
+Drops all database tables and re-runs migrations. Use for clean test resets.
+
+**Rate limiting**: 1 request per minute per IP.
+
+**Example**:
+```bash
+curl -X POST http://localhost:3000/api/test/purge-database
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Database purged and migrations re-run successfully",
+  "warning": "⚠️ This endpoint is for test mode only and will be removed"
+}
+```
+
+#### GET /api/test/status
+
+Check current test mode status.
+
+```bash
+curl http://localhost:3000/api/test/status
+```
+
+
 ## Accessibility Guidelines
 
 ### Images and Alt Text
