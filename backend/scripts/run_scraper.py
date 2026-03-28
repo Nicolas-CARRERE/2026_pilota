@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI script to run the scraper directly."""
+"""CLI script to run the scraper directly with debug output."""
 
 import asyncio
 import sys
@@ -16,23 +16,31 @@ async def main():
     
     # Default CTPB competitions to scrape
     competitions = [
-        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11",
-        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260104&InSpec=11",
+        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
+        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260104&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
     ]
     
     print(f"🚀 Starting scraper for {len(competitions)} competitions...")
     
     for url in competitions:
-        print(f"\n📊 Scraping: {url[:80]}...")
+        print(f"\n📊 Scraping: {url[:100]}...")
         result = await scrape_url(url)
         print(f"   Status: {result.status}")
         if result.status == "success":
             print(f"   ✅ Success!")
-            print(f"   Raw items: {len(result.raw_items) if hasattr(result, 'raw_items') else 'N/A'}")
-            print(f"   Raw content length: {len(result.raw_content) if hasattr(result, 'raw_content') else 'N/A'}")
-            # Print first 500 chars of raw content
-            if hasattr(result, 'raw_content') and result.raw_content:
-                print(f"   Preview: {result.raw_content[:500]}...")
+            # Check what attributes result has
+            print(f"   Result type: {type(result)}")
+            print(f"   Result attributes: {dir(result)}")
+            # Try to access raw_content safely
+            if hasattr(result, 'raw_content'):
+                content = result.raw_content
+                print(f"   Raw content type: {type(content)}")
+                print(f"   Raw content length: {len(content) if content else 0}")
+                if content and len(content) > 0:
+                    preview = content[:500] if isinstance(content, str) else str(content)[:500]
+                    print(f"   Preview: {preview}...")
+            else:
+                print(f"   No raw_content attribute")
         elif result.errors:
             print(f"   ❌ Errors: {result.errors}")
     
