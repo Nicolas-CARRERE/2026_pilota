@@ -67,7 +67,7 @@ router.get("/", async (request: Request, response: Response) => {
       prisma.competition.findMany({
         where,
         include: {
-          organizer: { select: { id: true, name: true, shortName: true } },
+          organizerRelation: { select: { id: true, name: true, shortName: true } },
           disciplineRelation: { select: { id: true, name: true } },
           yearRelation: { select: { id: true, year: true, isCurrent: true } },
           seriesRelation: { select: { id: true, code: true, name: true } },
@@ -102,10 +102,10 @@ router.get("/:id", async (request: Request, response: Response) => {
     const competition = await prisma.competition.findUnique({
       where: { id },
       include: {
-        organizer: true,
-        discipline: true,
-        year: true,
-        series: true,
+        organizerRelation: true,
+        disciplineRelation: true,
+        yearRelation: true,
+        seriesRelation: true,
         ageCategory: { select: { id: true, name: true } },
         gender: { select: { id: true, name: true, code: true } },
         _count: { select: { games: true } },
@@ -136,10 +136,17 @@ router.get("/:id", async (request: Request, response: Response) => {
       take: 20,
     });
 
-    response.json({
+    // Map relation names for backward compatibility
+    const competitionResponse = {
       ...competition,
+      organizer: competition.organizerRelation,
+      discipline: competition.disciplineRelation,
+      year: competition.yearRelation,
+      series: competition.seriesRelation,
       recentGames,
-    });
+    };
+    
+    response.json(competitionResponse);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     response.status(500).json({ error: "Failed to get competition", message });
