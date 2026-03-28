@@ -77,10 +77,34 @@ def parse_championship_name(name: str) -> Dict[str, Optional[str]]:
             result["organization"] = org
             break
 
-    # Extract year/season (4-digit year)
-    year_match = re.search(r"\b(20\d{2})\b", normalized)
-    if year_match:
-        year = int(year_match.group(1))
+    # Extract year/season - detect season spans like "2025-2026" or "25-26"
+    # Priority: full span (2025-2026) > short span (25-26) > single year (2026)
+    full_season_match = re.search(r"\b(20\d{2})-(20\d{2})\b", normalized)
+    short_season_match = re.search(r"\b(\d{2})-(\d{2})\b", normalized)
+    single_year_match = re.search(r"\b(20\d{2})\b", normalized)
+
+    if full_season_match:
+        # Full season span: "2025-2026"
+        start_year = int(full_season_match.group(1))
+        end_year = int(full_season_match.group(2))
+        result["season"] = f"{start_year}-{end_year}"
+        result["year"] = str(end_year)
+    elif short_season_match:
+        # Short season span: "25-26" → "2025-2026"
+        start_year = int(short_season_match.group(1))
+        end_year = int(short_season_match.group(2))
+        # Handle century rollover (e.g., 99-00 → 1999-2000)
+        if start_year > end_year:
+            start_year = 1900 + start_year
+            end_year = 2000 + end_year
+        else:
+            start_year = 2000 + start_year
+            end_year = 2000 + end_year
+        result["season"] = f"{start_year}-{end_year}"
+        result["year"] = str(end_year)
+    elif single_year_match:
+        # Single year: "2026" → season: "2026", year: 2026
+        year = int(single_year_match.group(1))
         result["year"] = str(year)
         result["season"] = str(year)
 

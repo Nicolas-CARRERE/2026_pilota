@@ -82,10 +82,35 @@ export function parseChampionshipName(name: string): ParsedChampionship {
     }
   }
 
-  // Extract year/season (4-digit year)
-  const yearMatch = normalized.match(/\b(20\d{2})\b/);
-  if (yearMatch) {
-    const year = parseInt(yearMatch[1], 10);
+  // Extract year/season - detect season spans like "2025-2026" or "25-26"
+  // Priority: full span (2025-2026) > short span (25-26) > single year (2026)
+  const fullSeasonMatch = normalized.match(/\b(20\d{2})-(20\d{2})\b/);
+  const shortSeasonMatch = normalized.match(/\b(\d{2})-(\d{2})\b/);
+  const singleYearMatch = normalized.match(/\b(20\d{2})\b/);
+
+  if (fullSeasonMatch) {
+    // Full season span: "2025-2026"
+    const startYear = parseInt(fullSeasonMatch[1], 10);
+    const endYear = parseInt(fullSeasonMatch[2], 10);
+    result.season = `${startYear}-${endYear}`;
+    result.year = endYear;
+  } else if (shortSeasonMatch) {
+    // Short season span: "25-26" → "2025-2026"
+    let startYear = parseInt(shortSeasonMatch[1], 10);
+    let endYear = parseInt(shortSeasonMatch[2], 10);
+    // Handle century rollover (e.g., 99-00 → 1999-2000)
+    if (startYear > endYear) {
+      startYear = 1900 + startYear;
+      endYear = 2000 + endYear;
+    } else {
+      startYear = 2000 + startYear;
+      endYear = 2000 + endYear;
+    }
+    result.season = `${startYear}-${endYear}`;
+    result.year = endYear;
+  } else if (singleYearMatch) {
+    // Single year: "2026" → season: "2026", year: 2026
+    const year = parseInt(singleYearMatch[1], 10);
     result.year = year;
     result.season = String(year);
   }
