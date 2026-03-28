@@ -16,6 +16,7 @@ export interface FilterConfig {
   showPhase?: boolean;
   showDateRange?: boolean;
   showStatus?: boolean;
+  showGranularFilters?: boolean; // NEW: discipline, season, year, series, group, pool, organization
   compact?: boolean;
 }
 
@@ -67,6 +68,15 @@ export class FilterComponent implements OnInit {
     { value: 'completed', label: 'Terminé' },
   ];
 
+  // NEW: Granular championship filter options
+  @Input() granularDisciplineOptions: FilterOption[] = [{ value: '', label: 'Toutes' }];
+  @Input() granularSeasonOptions: FilterOption[] = [{ value: '', label: 'Toutes' }];
+  @Input() granularYearOptions: FilterOption[] = [{ value: '', label: 'Toutes' }];
+  @Input() granularSeriesOptions: FilterOption[] = [{ value: '', label: 'Toutes' }];
+  @Input() granularGroupOptions: FilterOption[] = [{ value: '', label: 'Tous' }];
+  @Input() granularPoolOptions: FilterOption[] = [{ value: '', label: 'Toutes' }];
+  @Input() granularOrganizationOptions: FilterOption[] = [{ value: '', label: 'Toutes' }];
+
   constructor(private competitionsService: CompetitionsService) {}
 
   ngOnInit(): void {
@@ -82,6 +92,64 @@ export class FilterComponent implements OnInit {
         },
       });
     }
+
+    // NEW: Load granular filter options if enabled
+    if (this.config.showGranularFilters) {
+      this.loadGranularFilterOptions();
+    }
+  }
+
+  loadGranularFilterOptions(): void {
+    this.competitionsService.getFilters().subscribe({
+      next: (res) => {
+        const filters = res.filters || {};
+        if (filters.discipline) {
+          this.granularDisciplineOptions = [
+            { value: '', label: 'Toutes' },
+            ...filters.discipline,
+          ];
+        }
+        if (filters.season) {
+          this.granularSeasonOptions = [
+            { value: '', label: 'Toutes' },
+            ...filters.season,
+          ];
+        }
+        if (filters.year) {
+          this.granularYearOptions = [
+            { value: '', label: 'Toutes' },
+            ...filters.year,
+          ];
+        }
+        if (filters.series) {
+          this.granularSeriesOptions = [
+            { value: '', label: 'Toutes' },
+            ...filters.series,
+          ];
+        }
+        if (filters.group) {
+          this.granularGroupOptions = [
+            { value: '', label: 'Tous' },
+            ...filters.group,
+          ];
+        }
+        if (filters.pool) {
+          this.granularPoolOptions = [
+            { value: '', label: 'Toutes' },
+            ...filters.pool,
+          ];
+        }
+        if (filters.organization) {
+          this.granularOrganizationOptions = [
+            { value: '', label: 'Toutes' },
+            ...filters.organization,
+          ];
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load granular filter options', err);
+      },
+    });
   }
 
   onFilterChange(key: string, value: any): void {

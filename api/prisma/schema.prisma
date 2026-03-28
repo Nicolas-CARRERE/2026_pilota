@@ -163,10 +163,18 @@ model Competition {
   country         String?
   status          String   // upcoming, ongoing, completed, cancelled
   phase           String?
-  series          CompetitionSeries? @relation(fields: [seriesId], references: [id])
-  discipline      Discipline @relation(fields: [disciplineId], references: [id])
-  year            CompetitionYear @relation(fields: [yearId], references: [id])
-  organizer       Organizer @relation(fields: [organizerId], references: [id])
+  // Enhanced championship fields (parsed from championship name)
+  discipline      String?  // Place Libre, Trinquet, Main Nue, etc.
+  season          String?  // 2026
+  year            Int?     // 2026
+  series          String?  // 1ère Série - 1.Maila
+  group           String?  // GROUPE A, M19, Cadets, Gazteak
+  pool            String?  // Poule phase 1, Finale
+  organization    String?  // CTPB, FFPB
+  seriesRelation  CompetitionSeries? @relation(fields: [seriesId], references: [id])
+  disciplineRelation      Discipline @relation(fields: [disciplineId], references: [id])
+  yearRelation            CompetitionYear @relation(fields: [yearId], references: [id])
+  organizerRelation       Organizer @relation(fields: [organizerId], references: [id])
   ageCategory     AgeCategory? @relation(fields: [ageCategoryId], references: [id])
   gender          CompetitionGender? @relation(fields: [genderId], references: [id])
   games           Game[]

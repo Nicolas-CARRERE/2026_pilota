@@ -137,6 +137,92 @@
       </label>
     }
 
+    @if (config.showGranularFilters) {
+      <label class="filter-label">
+        Discipline
+        <select 
+          [(ngModel)]="filters['discipline']" 
+          name="discipline" 
+          (ngModelChange)="onFilterChange('discipline', $event)">
+          @for (opt of granularDisciplineOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-label">
+        Saison
+        <select 
+          [(ngModel)]="filters['season']" 
+          name="season" 
+          (ngModelChange)="onFilterChange('season', $event)">
+          @for (opt of granularSeasonOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-label">
+        Année
+        <select 
+          [(ngModel)]="filters['year']" 
+          name="year" 
+          (ngModelChange)="onFilterChange('year', $event)">
+          @for (opt of granularYearOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-label">
+        Série
+        <select 
+          [(ngModel)]="filters['series']" 
+          name="series" 
+          (ngModelChange)="onFilterChange('series', $event)">
+          @for (opt of granularSeriesOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-label">
+        Groupe
+        <select 
+          [(ngModel)]="filters['group']" 
+          name="group" 
+          (ngModelChange)="onFilterChange('group', $event)">
+          @for (opt of granularGroupOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-label">
+        Poule/Phase
+        <select 
+          [(ngModel)]="filters['pool']" 
+          name="pool" 
+          (ngModelChange)="onFilterChange('pool', $event)">
+          @for (opt of granularPoolOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-label">
+        Organisation
+        <select 
+          [(ngModel)]="filters['organization']" 
+          name="organization" 
+          (ngModelChange)="onFilterChange('organization', $event)">
+          @for (opt of granularOrganizationOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+    }
+
     <button type="button" class="btn btn--outline btn--small" (click)="onResetFilters()" aria-label="Réinitialiser les filtres">Réinitialiser</button>
   </form>
 </div>
