@@ -2,15 +2,37 @@
   <h1>Joueurs</h1>
   <p class="lead">Liste des joueurs.</p>
 
-  <div class="search-bar">
-    <input 
-      type="text" 
-      class="search-input"
-      placeholder="Rechercher un joueur..."
-      [value]="searchQuery"
-      (input)="onSearchChange($any($event.target).value)"
-      aria-label="Rechercher un joueur"
-    />
+  <div class="list-controls">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Rechercher un joueur..."
+        [value]="searchQuery"
+        (input)="onSearchChange($any($event.target).value)"
+        aria-label="Rechercher un joueur"
+      />
+    </div>
+
+    <div class="sort-controls">
+      <label for="sort-select">Trier par :</label>
+      <select 
+        id="sort-select"
+        [value]="sortBy"
+        (change)="onSortChange($any($event.target).value)"
+        aria-label="Options de tri">
+        <option value="name">Nom</option>
+        <option value="gamesPlayed">Parties jouées</option>
+        <option value="wins">Victoires</option>
+      </select>
+      <button 
+        type="button" 
+        class="btn btn--outline btn--small"
+        (click)="onSortChange(sortBy)"
+        aria-label="Inverser l'ordre de tri">
+        {{ sortDir === 'asc' ? '↑' : '↓' }}
+      </button>
+    </div>
   </div>
 
   <app-filter
@@ -28,7 +50,7 @@
       <button type="button" class="btn btn--outline" (click)="loadPlayers()">Réessayer</button>
     </div>
   } @else if (players.length === 0) {
-    <p>Aucun joueur trouvé.</p>
+    <p class="empty-state">Aucun joueur trouvé.</p>
   } @else {
     <ul class="player-list" role="list" aria-label="Liste des joueurs">
       @for (p of players; track p.id) {
@@ -40,5 +62,11 @@
         </li>
       }
     </ul>
+
+    <div class="pagination" role="navigation" aria-label="Pagination">
+      <button type="button" class="btn btn--outline" [disabled]="offset === 0" (click)="pagePrev()" aria-label="Page précédente">Précédent</button>
+      <span class="pagination-info" aria-live="polite">{{ offset + 1 }} – {{ offset + players.length }} / {{ total }}</span>
+      <button type="button" class="btn btn--outline" [disabled]="offset + limit >= total" (click)="pageNext()" aria-label="Page suivante">Suivant</button>
+    </div>
   }
 </div>

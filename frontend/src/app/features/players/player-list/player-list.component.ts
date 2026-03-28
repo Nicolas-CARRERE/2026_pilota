@@ -15,11 +15,16 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class PlayerListComponent implements OnInit {
   players: PlayerStatsListItem[] = [];
+  total = 0;
   loading = true;
   error: string | null = null;
   filters: Record<string, any> = {};
   filterConfig: FilterConfig = { showSeason: true, compact: true };
   searchQuery = '';
+  offset = 0;
+  limit = 20;
+  sortBy: string = 'name';
+  sortDir: string = 'asc';
 
   constructor(
     private playersService: PlayersService,
@@ -32,6 +37,7 @@ export class PlayerListComponent implements OnInit {
 
   applyFilters(newFilters: Record<string, any>): void {
     this.filters = { ...this.filters, ...newFilters };
+    this.offset = 0;
     this.loadPlayers();
   }
 
@@ -39,23 +45,53 @@ export class PlayerListComponent implements OnInit {
     this.filters = {};
     this.searchQuery = '';
     this.toastService.info('Filtres réinitialisés');
+    this.offset = 0;
     this.loadPlayers();
   }
 
   onSearchChange(query: string): void {
     this.searchQuery = query;
+    this.offset = 0;
+    this.loadPlayers();
+  }
+
+  onSortChange(sortBy: string): void {
+    if (this.sortBy === sortBy) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = sortBy;
+      this.sortDir = 'asc';
+    }
+    this.loadPlayers();
+  }
+
+  pagePrev(): void {
+    if (this.offset > 0) {
+      this.offset -= this.limit;
+      this.loadPlayers();
+    }
+  }
+
+  pageNext(): void {
+    this.offset += this.limit;
     this.loadPlayers();
   }
 
   loadPlayers(): void {
     this.loading = true;
-    const params: any = { limit: 200 };
+    const params: any = { 
+      limit: this.limit,
+      offset: this.offset,
+      sortBy: this.sortBy,
+      sortDir: this.sortDir,
+    };
     if (this.searchQuery.trim()) {
       params.search = this.searchQuery.trim();
     }
     this.playersService.getList(params).subscribe({
       next: (res) => {
         this.players = res.players ?? [];
+        this.total = res.total ?? this.players.length;
         this.loading = false;
       },
       error: (err) => {
