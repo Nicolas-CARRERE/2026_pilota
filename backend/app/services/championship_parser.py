@@ -12,17 +12,22 @@ from typing import Dict, List, Optional, Set
 
 
 # Known discipline keywords (case-insensitive matching)
-DISCIPLINE_KEYWORDS = [
-    "Place Libre",
-    "Trinquet",
-    "Main Nue",
-    "Chistera",
-    "Joko Garbi",
-    "Paleta",
-    "Gros Paleta",
-    "Pala Corta",
-    "Xare",
-    "Frontenis",
+# Order matters: check compound patterns first
+DISCIPLINE_PATTERNS = [
+    r"Place\s*Libre\s*/\s*Chistera\s*Joko\s*Garbi",
+    r"Place\s*Libre\s*/\s*Grand\s*Chistera",
+    r"Place\s*Libre\s*/\s*Rebot",
+    r"Trinquet\s*/\s*Main\s*Nue",
+    r"Place\s*Libre",
+    r"Trinquet",
+    r"Main\s*Nue",
+    r"Chistera",
+    r"Joko\s*Garbi",
+    r"Paleta",
+    r"Gros\s*Paleta",
+    r"Pala\s*Corta",
+    r"Xare",
+    r"Frontenis",
 ]
 
 # Known organization keywords
@@ -124,29 +129,18 @@ def parse_championship_name(name: str) -> Dict[str, Optional[str]]:
         result["season"] = str(year)
         result["year"] = year
     
-    # Extract discipline (can be compound like "Trinquet/Main Nue" or "Place Libre/Chistera Joko Garbi")
-    for discipline in DISCIPLINE_KEYWORDS:
-        # Check if discipline is in the name (with or without slash)
-        if re.search(rf"\b{re.escape(discipline)}\b", normalized, re.IGNORECASE):
-            # Try to get compound discipline (e.g., "Trinquet/Main Nue")
-            compound_match = re.search(
-                rf"((?:Place Libre|Trinquet|Main Nue|Chistera|Joko Garbi)(?:\s*/\s*(?:Place Libre|Trinquet|Main Nue|Chistera|Joko Garbi))?)",
-                normalized,
-                re.IGNORECASE
-            )
-            if compound_match:
-                result["discipline"] = compound_match.group(1).strip()
-            else:
-                result["discipline"] = discipline
+    # Extract discipline - try compound patterns FIRST, then simple ones
+    for pattern in DISCIPLINE_PATTERNS:
+        match = re.search(pattern, normalized, re.IGNORECASE)
+        if match:
+            result["discipline"] = match.group(0).strip()
             break
     
     # Extract pool/phase (look for these patterns anywhere in the string)
     for pool in sorted(POOL_KEYWORDS, key=len, reverse=True):
         pool_match = re.search(rf"{re.escape(pool)}", normalized, re.IGNORECASE)
         if pool_match:
-            # Extract the pool phrase (may include additional text like "Poule phase 1")
             start = pool_match.start()
-            # Try to get the full pool phrase
             remaining = normalized[start:]
             pool_phrase_match = re.match(r"([A-Za-z\s/]+(?:phase\s*\d+)?)", remaining, re.IGNORECASE)
             if pool_phrase_match:
@@ -175,12 +169,6 @@ def parse_championship_name(name: str) -> Dict[str, Optional[str]]:
 def extract_filter_options(championship_names: List[str]) -> Dict[str, List[str]]:
     """
     Extract distinct filter options from a list of championship names.
-    
-    Args:
-        championship_names: List of championship name strings
-        
-    Returns:
-        Dict with keys: disciplines, seasons, years, series, groups, pools, organizations
     """
     options: Dict[str, Set[str]] = {
         "disciplines": set(),
@@ -209,8 +197,4 @@ def extract_filter_options(championship_names: List[str]) -> Dict[str, List[str]
         if parsed.get("organization"):
             options["organizations"].add(parsed["organization"])
     
-    # Convert sets to sorted lists
-    return {
-        key: sorted(list(value))
-        for key, value in options.items()
-    }
+    return {key: sorted(list(value)) for key, value in options.items()}
