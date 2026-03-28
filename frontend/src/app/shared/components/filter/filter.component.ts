@@ -35,6 +35,7 @@ export class FilterComponent implements OnInit {
   @Input() filters: Record<string, any> = {};
   @Input() fieldErrors: FieldErrors = {};
   @Output() filtersChange = new EventEmitter<Record<string, any>>();
+  @Output() resetFilters = new EventEmitter<void>();
 
   competitions: CompetitionListItem[] = [];
   loading = false;
@@ -97,6 +98,11 @@ export class FilterComponent implements OnInit {
     this.filters = reset;
     this.fieldErrors = {};
     this.filtersChange.emit(reset);
+  }
+
+  onResetFilters(): void {
+    this.resetFilters();
+    this.resetFilters.emit();
   }
 
   hasError(fieldName: string): boolean {

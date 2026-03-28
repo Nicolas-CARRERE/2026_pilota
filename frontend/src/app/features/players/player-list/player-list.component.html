@@ -2,10 +2,22 @@
   <h1>Joueurs</h1>
   <p class="lead">Liste des joueurs.</p>
 
+  <div class="search-bar">
+    <input 
+      type="text" 
+      class="search-input"
+      placeholder="Rechercher un joueur..."
+      [value]="searchQuery"
+      (input)="onSearchChange($any($event.target).value)"
+      aria-label="Rechercher un joueur"
+    />
+  </div>
+
   <app-filter
     [config]="filterConfig"
     [filters]="filters"
     (filtersChange)="applyFilters($event)"
+    (resetFilters)="onResetFilters()"
   />
 
   @if (loading) {

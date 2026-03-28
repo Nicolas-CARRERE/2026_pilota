@@ -2,10 +2,22 @@
   <h1>Équipes</h1>
   <p class="lead">Liste des équipes.</p>
 
+  <div class="search-bar">
+    <input 
+      type="text" 
+      class="search-input"
+      placeholder="Rechercher une équipe..."
+      [value]="searchQuery"
+      (input)="onSearchChange($any($event.target).value)"
+      aria-label="Rechercher une équipe"
+    />
+  </div>
+
   <app-filter
     [config]="filterConfig"
     [filters]="filters"
     (filtersChange)="applyFilters($event)"
+    (resetFilters)="onResetFilters()"
   />
 
   @if (loading) {
