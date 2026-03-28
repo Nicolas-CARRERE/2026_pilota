@@ -41,6 +41,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** High
 - **Effort:** M
 - **Files:** `src/app/layout/header/header.component.*`
+- **Status:** ✅ COMPLETED — Added hamburger button, mobile nav with slide-down animation, aria-expanded attributes
 
 #### #2: No Breadcrumb Navigation
 - **Issue:** Detail pages only have "Retour" links; users lose context
@@ -49,6 +50,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** M
 - **Files:** New component `src/app/shared/components/breadcrumb/`
+- **Status:** ✅ COMPLETED — BreadcrumbComponent added, integrated on all detail pages (players, teams, games, championships)
 
 #### #3: Inconsistent Back Links
 - **Issue:** Some pages use `btn btn--outline`, others use `.back-link` class
@@ -57,6 +59,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Low
 - **Effort:** S
 - **Files:** All detail page templates
+- **Status:** ✅ COMPLETED — All back links now have aria-labels, consistent pattern across pages
 
 #### #4: No Skip-to-Content Link
 - **Issue:** Keyboard users must tab through nav on every page
@@ -78,6 +81,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** M
 - **Files:** `src/app/shared/components/filter/filter.component.*`
+- **Status:** ✅ COMPLETED — Added .is-invalid class, error-text display, aria-invalid and aria-describedby attributes
 
 #### #6: No Loading State on Filter Changes
 - **Issue:** Filters emit immediately; no feedback during API calls
@@ -86,6 +90,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** S
 - **Files:** Filter component + parent list components
+- **Status:** ✅ COMPLETED — Added loading spinner with aria-live status during competition fetch
 
 #### #7: No Confirmation on Filter Reset
 - **Issue:** "Réinitialiser" button clears filters without warning
@@ -94,10 +99,12 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Low
 - **Effort:** M
 - **Files:** Filter component + notification service
+- **Status:** ✅ COMPLETED — Toast notification shows "Filtres réinitialisés" on reset
 
 #### #8: No Search Functionality
 - **Issue:** Player/team lists have no search box
 - **Current:** Only filter by competition/phase/status
+- **Status:** ✅ COMPLETED — Added search input with debounced filtering on player and team lists
 - **Fix:** Add text search input with debounced filtering
 - **Priority:** High
 - **Effort:** M
@@ -114,6 +121,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** High
 - **Effort:** L
 - **Files:** New service + component `src/app/shared/components/toast/`
+- **Status:** ✅ COMPLETED — ToastService + ToastComponent with success/error/info/warning types, auto-dismiss, close button
 
 #### #10: Error Messages Lack Visibility
 - **Issue:** `.error-message` blends in; users may miss errors
@@ -122,6 +130,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** S
 - **Files:** `src/styles.scss`, update error templates
+- **Status:** ✅ COMPLETED — Added warning icon, sticky positioning, improved contrast and shadow
 
 ---
 
@@ -143,6 +152,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** S
 - **Files:** `src/app/shared/components/filter/filter.component.scss`
+- **Status:** ✅ COMPLETED — Added 400px breakpoint with full-width inputs and smaller fonts
 
 #### #13: Dashboard Sidebar Not Collapsible on Mobile
 - **Issue:** `sidebarCollapsed` button exists but sidebar takes full width on mobile
@@ -151,6 +161,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** M
 - **Files:** `src/app/dashboard/dashboard.component.*`
+- **Status:** ✅ COMPLETED — Sidebar slides out as modal on mobile with overlay backdrop, closes on main click
 
 ---
 
@@ -163,6 +174,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** High
 - **Effort:** M
 - **Files:** All component templates
+- **Status:** ✅ COMPLETED — Added ARIA labels to lists, detail pages, buttons, navigation, error messages, pagination
 
 #### #15: No Focus States Defined
 - **Issue:** Keyboard navigation has no visible focus indicators
@@ -180,6 +192,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** S
 - **Files:** `src/styles.scss` (update `--pelota-green`)
+- **Status:** ✅ COMPLETED — Darkened green to #007A3D and red to #C40210 for better WCAG AA compliance
 
 #### #17: No Alt Text on Images
 - **Issue:** No images currently, but future images will need alt text
@@ -188,6 +201,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Low
 - **Effort:** S
 - **Files:** Team guidelines (add to README)
+- **Status:** ✅ COMPLETED — Added accessibility guidelines section to README.md with alt text requirements
 
 ---
 
@@ -209,6 +223,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** M
 - **Files:** New component `src/app/shared/components/skeleton/`
+- **Status:** ✅ COMPLETED — SkeletonComponent with card/list/text/avatar variants and shimmer animation
 
 #### #20: No Retry Mechanism on Error
 - **Issue:** Error state shows message but no way to retry
