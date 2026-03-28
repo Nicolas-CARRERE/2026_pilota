@@ -19,6 +19,10 @@ export interface FilterConfig {
   compact?: boolean;
 }
 
+export interface FieldErrors {
+  [key: string]: string;
+}
+
 @Component({
   selector: 'app-filter',
   standalone: true,
@@ -29,6 +33,7 @@ export interface FilterConfig {
 export class FilterComponent implements OnInit {
   @Input() config: FilterConfig = {};
   @Input() filters: Record<string, any> = {};
+  @Input() fieldErrors: FieldErrors = {};
   @Output() filtersChange = new EventEmitter<Record<string, any>>();
 
   competitions: CompetitionListItem[] = [];
@@ -65,9 +70,14 @@ export class FilterComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.config.showCompetition) {
+      this.loading = true;
       this.competitionsService.getList({ limit: 200 }).subscribe({
         next: (res) => {
           this.competitions = res.competitions;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
         },
       });
     }
@@ -75,12 +85,25 @@ export class FilterComponent implements OnInit {
 
   onFilterChange(key: string, value: any): void {
     const updated = { ...this.filters, [key]: value };
+    // Clear error for this field when user changes it
+    if (this.fieldErrors[key]) {
+      delete this.fieldErrors[key];
+    }
     this.filtersChange.emit(updated);
   }
 
   resetFilters(): void {
     const reset: Record<string, any> = {};
     this.filters = reset;
+    this.fieldErrors = {};
     this.filtersChange.emit(reset);
+  }
+
+  hasError(fieldName: string): boolean {
+    return !!this.fieldErrors[fieldName];
+  }
+
+  getError(fieldName: string): string {
+    return this.fieldErrors[fieldName] || '';
   }
 }
