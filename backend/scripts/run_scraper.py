@@ -5,6 +5,12 @@ import argparse
 import asyncio
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env file from backend directory
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
+print(f"📄 Loaded .env from: {env_path}")
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -28,6 +34,7 @@ async def main():
     args = parser.parse_args()
 
     settings = get_settings()
+    print(f"🔧 Database URL: {settings.database_url[:50]}...")
     
     # Default CTPB competitions to scrape
     competitions = args.url or [
@@ -58,14 +65,13 @@ async def main():
                 # Extract competition info from discipline_context
                 if isinstance(games, list) and games:
                     for game in games:
-                        if isinstance(game, dict) and game.get("discipline_context"):
+                        if "discipline_context" in game:
                             total_competitions.add(game["discipline_context"])
                 
                 if args.ingest and games:
                     print(f"   📦 Ingesting {games_count} games...")
                     from app.services.ingestion_service import ingest_scraped_games
                     ingest_result = await ingest_scraped_games(games)
-                    print(f"   ✅ Ingestion complete:")
                     print(f"      - Competitions created: {ingest_result.get('competitions_created', 0)}")
                     print(f"      - Games created: {ingest_result.get('games_created', 0)}")
                     print(f"      - Games updated: {ingest_result.get('games_updated', 0)}")
@@ -74,7 +80,7 @@ async def main():
     
     print(f"\n✅ Scraper finished!")
     print(f"   Total games: {total_games}")
-    print(f"   Unique competitions: {len(total_competitions)}")
+    print(f"   Total competitions: {len(total_competitions)}")
     if args.ingest:
         print(f"   All games ingested into database")
 
