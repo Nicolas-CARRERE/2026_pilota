@@ -26,7 +26,7 @@
         <div class="scores">
           <strong>Score :</strong>
           @for (s of game.gameScores; track s.id) {
-            <span class="raw-score" aria-label="Manche {{ $index + 1 }}: {{ s.rawScore }}">{{ s.rawScore }}</span>
+            <span class="raw-score" [attr.aria-label]="'Manche ' + ($index + 1) + ': ' + s.rawScore">{{ s.rawScore }}</span>
           }
         </div>
       }

@@ -93,16 +93,16 @@ export class FilterComponent implements OnInit {
     this.filtersChange.emit(updated);
   }
 
-  resetFilters(): void {
+  doResetFilters(): void {
     const reset: Record<string, any> = {};
     this.filters = reset;
     this.fieldErrors = {};
     this.filtersChange.emit(reset);
+    this.resetFilters.emit();
   }
 
   onResetFilters(): void {
-    this.resetFilters();
-    this.resetFilters.emit();
+    this.doResetFilters();
   }
 
   hasError(fieldName: string): boolean {

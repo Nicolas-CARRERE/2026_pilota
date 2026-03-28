@@ -91,7 +91,7 @@ export class PlayerListComponent implements OnInit {
     this.playersService.getList(params).subscribe({
       next: (res) => {
         this.players = res.players ?? [];
-        this.total = res.total ?? this.players.length;
+        this.total = (res as any).total ?? this.players.length;
         this.loading = false;
       },
       error: (err) => {
