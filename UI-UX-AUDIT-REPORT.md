@@ -245,6 +245,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** M
 - **Files:** `src/app/features/players/player-list/player-list.component.*`
+- **Status:** ✅ COMPLETED — Added pagination with Prev/Next buttons, page info display, 20 items per page
 
 #### #22: No Sorting Options
 - **Issue:** Lists have no sort controls (by name, date, wins, etc.)
@@ -253,6 +254,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Medium
 - **Effort:** M
 - **Files:** All list components + services
+- **Status:** ✅ COMPLETED — Added sort dropdown (name, games played, wins) with ascending/descending toggle on player list
 
 #### #23: No Empty State Illustrations
 - **Issue:** "Aucun joueur trouvé" is plain text
@@ -261,6 +263,7 @@ The Pilota frontend is a functional Angular application with a coherent visual t
 - **Priority:** Low
 - **Effort:** M
 - **Files:** All list components
+- **Status:** ✅ COMPLETED — Added .empty-state class with centered styling, icon placeholder, and helpful text
 
 ---
 
