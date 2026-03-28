@@ -5,6 +5,7 @@
     <div class="error-message" role="alert">{{ error }}</div>
     <p><a routerLink="/games" class="btn btn--outline">Retour aux résultats</a></p>
   } @else if (game) {
+    <app-breadcrumb [items]="breadcrumbs" />
     <p><a routerLink="/games" class="back-link" aria-label="Retour à la liste des résultats">← Retour aux résultats</a></p>
     <article class="card game-detail-card" aria-labelledby="game-title">
       <h1 id="game-title">Détail de la partie</h1>

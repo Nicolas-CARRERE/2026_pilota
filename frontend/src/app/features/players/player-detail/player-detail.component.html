@@ -5,6 +5,7 @@
     <div class="error-message" role="alert">{{ error }}</div>
     <p><a routerLink="/players" class="btn btn--outline">Retour aux joueurs</a></p>
   } @else if (player) {
+    <app-breadcrumb [items]="breadcrumbs" />
     <p><a routerLink="/players" class="back-link" aria-label="Retour à la liste des joueurs">← Retour aux joueurs</a></p>
     <article class="card player-detail-card" aria-labelledby="player-title">
       <h1 id="player-title">{{ displayName(player.firstName, player.lastName, player.nickname) }}</h1>

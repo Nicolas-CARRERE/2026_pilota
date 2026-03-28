@@ -5,6 +5,7 @@
     <div class="error-message" role="alert">{{ error }}</div>
     <p><a routerLink="/teams" class="btn btn--outline">Retour aux équipes</a></p>
   } @else if (team) {
+    <app-breadcrumb [items]="breadcrumbs" />
     <p><a routerLink="/teams" class="back-link" aria-label="Retour à la liste des équipes">← Retour aux équipes</a></p>
     <article class="card team-detail-card" aria-labelledby="team-title">
       <h1 id="team-title">
