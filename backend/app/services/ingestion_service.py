@@ -138,7 +138,7 @@ class IngestionService:
             # Try to find existing competition with same key fields
             existing = await conn.fetchrow(
                 """
-                SELECT id FROM competition
+                SELECT id FROM "Competition"
                 WHERE organizer_id = $1
                   AND discipline_id = $2
                   AND year_id = $3
@@ -162,7 +162,7 @@ class IngestionService:
             start_date = datetime(year, 1, 1)
             competition = await conn.fetchrow(
                 """
-                INSERT INTO competition (
+                INSERT INTO "Competition" (
                     organizer_id, discipline_id, year_id,
                     start_date, end_date, status,
                     discipline, season, year, series, "group", pool, organization
@@ -221,7 +221,7 @@ class IngestionService:
         if external_id and source_id:
             existing = await conn.fetchrow(
                 """
-                SELECT id FROM game
+                SELECT id FROM "Game"
                 WHERE external_id = $1 AND source_id = $2
                 """,
                 external_id,
@@ -251,7 +251,7 @@ class IngestionService:
 
         existing = await conn.fetchrow(
             """
-            SELECT id FROM competition
+            SELECT id FROM "Competition"
             WHERE organizer_id = $1 AND discipline_id = $2 AND year_id = $3
             """,
             organizer_id,
@@ -265,7 +265,7 @@ class IngestionService:
         start_date = datetime(year, 1, 1)
         competition = await conn.fetchrow(
             """
-            INSERT INTO competition (
+            INSERT INTO "Competition" (
                 organizer_id, discipline_id, year_id,
                 start_date, end_date, status, year
             )
@@ -310,14 +310,14 @@ class IngestionService:
     ) -> str:
         """Get or create modality record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM modality WHERE name = $1", name
+            "SELECT id FROM "Modality" WHERE name = $1", name
         )
         if existing:
             return existing["id"]
 
         modality = await conn.fetchrow(
             """
-            INSERT INTO modality (name)
+            INSERT INTO "Modality" (name)
             VALUES ($1)
             RETURNING id
             """,
@@ -330,7 +330,7 @@ class IngestionService:
     ) -> str:
         """Get or create discipline record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM discipline WHERE modality_id = $1 AND name = $2",
+            "SELECT id FROM "Discipline" WHERE modality_id = $1 AND name = $2",
             modality_id,
             name,
         )
@@ -339,7 +339,7 @@ class IngestionService:
 
         discipline = await conn.fetchrow(
             """
-            INSERT INTO discipline (modality_id, name)
+            INSERT INTO "Discipline" (modality_id, name)
             VALUES ($1, $2)
             RETURNING id
             """,
@@ -353,7 +353,7 @@ class IngestionService:
     ) -> str:
         """Get or create competition year record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM competition_year WHERE year = $1", year
+            "SELECT id FROM "Competition_Year" WHERE year = $1", year
         )
         if existing:
             return existing["id"]
@@ -361,7 +361,7 @@ class IngestionService:
         current_year = datetime.now().year
         year_record = await conn.fetchrow(
             """
-            INSERT INTO competition_year (year, is_current)
+            INSERT INTO "Competition_Year" (year, is_current)
             VALUES ($1, $2)
             RETURNING id
             """,
@@ -408,7 +408,7 @@ class IngestionService:
 
         game = await conn.fetchrow(
             """
-            INSERT INTO game (
+            INSERT INTO "Game" (
                 competition_id, player1_id, player2_id,
                 start_date, status, source_id, external_id,
                 scraped_from_url, score_complete, winner_id,
@@ -435,7 +435,7 @@ class IngestionService:
         raw_score = str(game_data.get("raw_score", ""))[:50]
         await conn.execute(
             """
-            INSERT INTO game_score (game_id, raw_score)
+            INSERT INTO "Game"_score (game_id, raw_score)
             VALUES ($1, $2)
             """,
             game["id"],
@@ -552,7 +552,7 @@ class IngestionService:
         # Try by license first
         if license:
             existing = await conn.fetchrow(
-                "SELECT id FROM player WHERE license = $1", license[:32]
+                "SELECT id FROM "Player" WHERE license = $1", license[:32]
             )
             if existing:
                 return existing["id"]
@@ -560,14 +560,14 @@ class IngestionService:
         # Try by external_id (nickname)
         if external_id:
             existing = await conn.fetchrow(
-                "SELECT id FROM player WHERE nickname = $1", external_id
+                "SELECT id FROM "Player" WHERE nickname = $1", external_id
             )
             if existing:
                 return existing["id"]
 
         # Try by name
         existing = await conn.fetchrow(
-            "SELECT id FROM player WHERE first_name = $1 AND last_name = $2",
+            "SELECT id FROM "Player" WHERE first_name = $1 AND last_name = $2",
             first_name,
             last_name,
         )
@@ -577,7 +577,7 @@ class IngestionService:
         # Create new player
         player = await conn.fetchrow(
             """
-            INSERT INTO player (first_name, last_name, nickname, license, is_active)
+            INSERT INTO "Player" (first_name, last_name, nickname, license, is_active)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING id
             """,
@@ -594,7 +594,7 @@ class IngestionService:
     ) -> str:
         """Get or create CTPB source record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM source WHERE url LIKE $1", "%ctpb.euskalpilota.fr%"
+            "SELECT id FROM "Source" WHERE url LIKE $1", "%ctpb.euskalpilota.fr%"
         )
         if existing:
             return existing["id"]
