@@ -138,7 +138,7 @@ class IngestionService:
             # Try to find existing competition with same key fields
             existing = await conn.fetchrow(
                 """
-                SELECT id FROM "Competition"
+                SELECT id FROM competition
                 WHERE organizer_id = $1
                   AND discipline_id = $2
                   AND year_id = $3
@@ -221,7 +221,7 @@ class IngestionService:
         if external_id and source_id:
             existing = await conn.fetchrow(
                 """
-                SELECT id FROM "Game"
+                SELECT id FROM game
                 WHERE external_id = $1 AND source_id = $2
                 """,
                 external_id,
@@ -251,7 +251,7 @@ class IngestionService:
 
         existing = await conn.fetchrow(
             """
-            SELECT id FROM "Competition"
+            SELECT id FROM competition
             WHERE organizer_id = $1 AND discipline_id = $2 AND year_id = $3
             """,
             organizer_id,
@@ -361,7 +361,7 @@ class IngestionService:
         current_year = datetime.now().year
         year_record = await conn.fetchrow(
             """
-            INSERT INTO "Competition_Year" (year, is_current)
+            INSERT INTO competition_year (year, is_current)
             VALUES ($1, $2)
             RETURNING id
             """,
@@ -408,7 +408,7 @@ class IngestionService:
 
         game = await conn.fetchrow(
             """
-            INSERT INTO "Game" (
+            INSERT INTO game (
                 competition_id, player1_id, player2_id,
                 start_date, status, source_id, external_id,
                 scraped_from_url, score_complete, winner_id,
@@ -435,7 +435,7 @@ class IngestionService:
         raw_score = str(game_data.get("raw_score", ""))[:50]
         await conn.execute(
             """
-            INSERT INTO "Game"_score (game_id, raw_score)
+            INSERT INTO game_score (game_id, raw_score)
             VALUES ($1, $2)
             """,
             game["id"],
@@ -577,7 +577,7 @@ class IngestionService:
         # Create new player
         player = await conn.fetchrow(
             """
-            INSERT INTO "Player" (first_name, last_name, nickname, license, is_active)
+            INSERT INTO player (first_name, last_name, nickname, license, is_active)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING id
             """,
