@@ -21,6 +21,7 @@ model Modality {
 }
 
 model AgeCategory {
+  @@map("age_category")
   id          String   @id @default(uuid())
   name        String
   shortName   String?  @map("short_name")
@@ -33,6 +34,7 @@ model AgeCategory {
 }
 
 model CompetitionGender {
+  @@map("competition_gender")
   id          String   @id @default(uuid())
   name        String
   code        String   @db.VarChar(2)
@@ -55,6 +57,7 @@ model Discipline {
 }
 
 model CompetitionSeries {
+  @@map("competition_series")
   id               String   @id @default(uuid())
   code             String   @unique
   name             String
@@ -122,6 +125,7 @@ model Player {
 }
 
 model PlayerClubHistory {
+  @@map("player_club_history")
   id        String   @id @default(uuid())
   playerId  String   @map("player_id")
   clubId    String   @map("club_id")
@@ -147,6 +151,7 @@ model Team {
 }
 
 model TeamPlayer {
+  @@map("team_player")
   teamId   String @map("team_id")
   playerId String @map("player_id")
   role     String?
@@ -188,6 +193,7 @@ model Competition {
 }
 
 model Court {
+  @@map("court")
   id        String   @id @default(uuid())
   name      String
   city      String
@@ -226,6 +232,7 @@ model Game {
 }
 
 model GameSidePlayer {
+  @@map("game_side_player")
   gameId       String  @map("game_id")
   playerId    String  @map("player_id")
   side        Int     // 1 = first team (e.g. club1), 2 = second team (e.g. club2)
@@ -236,6 +243,7 @@ model GameSidePlayer {
 }
 
 model GameScore {
+  @@map("game_score")
   id                    String   @id @default(uuid())
   gameId                String   @map("game_id")
   rawScore              String   @map("raw_score") @db.VarChar(50)
@@ -251,6 +259,7 @@ model GameScore {
 }
 
 model PlayerStat {
+  @@map("player_stat")
   id                  String   @id @default(uuid())
   playerId            String   @map("player_id")
   gameId              String   @map("game_id")
@@ -288,6 +297,7 @@ model Source {
 }
 
 model ScrapedFilterOption {
+  @@map("scraped_filter_option")
   id               String             @id @default(uuid())
   sourceId         String             @map("source_id")
   kind             String             // competition, city, club, category, phase (no specialty)
@@ -299,6 +309,7 @@ model ScrapedFilterOption {
 }
 
 model ScrapedSpecialty {
+  @@map("scraped_specialty")
   id                   String              @id @default(uuid())
   sourceId             String              @map("source_id")
   competitionOptionId  String              @map("competition_option_id")
@@ -310,6 +321,7 @@ model ScrapedSpecialty {
 }
 
 model ScrapingJobRun {
+  @@map("scraping_job_run")
   id          String   @id @default(uuid())
   sourceId    String   @map("source_id")
   url         String
