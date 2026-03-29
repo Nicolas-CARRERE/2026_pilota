@@ -162,7 +162,7 @@ class IngestionService:
             start_date = datetime(year, 1, 1)
             competition = await conn.fetchrow(
                 """
-                INSERT INTO "Competition" (
+                INSERT INTO \"Competition\" (
                     organizer_id, discipline_id, year_id,
                     start_date, end_date, status,
                     discipline, season, year, series, "group", pool, organization
@@ -265,7 +265,7 @@ class IngestionService:
         start_date = datetime(year, 1, 1)
         competition = await conn.fetchrow(
             """
-            INSERT INTO "Competition" (
+            INSERT INTO \"Competition\" (
                 organizer_id, discipline_id, year_id,
                 start_date, end_date, status, year
             )
@@ -295,7 +295,7 @@ class IngestionService:
 
         organizer = await conn.fetchrow(
             """
-            INSERT INTO "Organizer" (id, name, type, is_active)
+            INSERT INTO \"Organizer\" (id, name, type, is_active)
             VALUES (gen_random_uuid(), $1, $2, $3)
             RETURNING id
             """,
@@ -310,14 +310,14 @@ class IngestionService:
     ) -> str:
         """Get or create modality record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM "Modality" WHERE name = $1", name
+            "SELECT id FROM \"Modality\" WHERE name = $1", name
         )
         if existing:
             return existing["id"]
 
         modality = await conn.fetchrow(
             """
-            INSERT INTO "Modality" (name)
+            INSERT INTO \"Modality\" (name)
             VALUES ($1)
             RETURNING id
             """,
@@ -330,7 +330,7 @@ class IngestionService:
     ) -> str:
         """Get or create discipline record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM "Discipline" WHERE modality_id = $1 AND name = $2",
+            "SELECT id FROM \"Discipline\" WHERE modality_id = $1 AND name = $2",
             modality_id,
             name,
         )
@@ -339,7 +339,7 @@ class IngestionService:
 
         discipline = await conn.fetchrow(
             """
-            INSERT INTO "Discipline" (modality_id, name)
+            INSERT INTO \"Discipline\" (modality_id, name)
             VALUES ($1, $2)
             RETURNING id
             """,
@@ -353,7 +353,7 @@ class IngestionService:
     ) -> str:
         """Get or create competition year record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM "Competition_Year" WHERE year = $1", year
+            "SELECT id FROM \"Competition_Year\" WHERE year = $1", year
         )
         if existing:
             return existing["id"]
@@ -552,7 +552,7 @@ class IngestionService:
         # Try by license first
         if license:
             existing = await conn.fetchrow(
-                "SELECT id FROM "Player" WHERE license = $1", license[:32]
+                "SELECT id FROM \"Player\" WHERE license = $1", license[:32]
             )
             if existing:
                 return existing["id"]
@@ -560,14 +560,14 @@ class IngestionService:
         # Try by external_id (nickname)
         if external_id:
             existing = await conn.fetchrow(
-                "SELECT id FROM "Player" WHERE nickname = $1", external_id
+                "SELECT id FROM \"Player\" WHERE nickname = $1", external_id
             )
             if existing:
                 return existing["id"]
 
         # Try by name
         existing = await conn.fetchrow(
-            "SELECT id FROM "Player" WHERE first_name = $1 AND last_name = $2",
+            "SELECT id FROM \"Player\" WHERE first_name = $1 AND last_name = $2",
             first_name,
             last_name,
         )
@@ -594,7 +594,7 @@ class IngestionService:
     ) -> str:
         """Get or create CTPB source record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM "Source" WHERE url LIKE $1", "%ctpb.euskalpilota.fr%"
+            "SELECT id FROM \"Source\" WHERE url LIKE $1", "%ctpb.euskalpilota.fr%"
         )
         if existing:
             return existing["id"]
