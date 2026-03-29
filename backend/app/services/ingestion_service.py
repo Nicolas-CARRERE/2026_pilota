@@ -295,7 +295,7 @@ class IngestionService:
 
         organizer = await conn.fetchrow(
             """
-            INSERT INTO organizer (name, type, is_active)
+            INSERT INTO "Organizer" (name, type, is_active)
             VALUES ($1, $2, $3)
             RETURNING id
             """,
