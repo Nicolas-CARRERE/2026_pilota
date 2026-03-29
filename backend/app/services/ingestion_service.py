@@ -318,7 +318,6 @@ class IngestionService:
         modality = await conn.fetchrow(
             """
             INSERT INTO modality (id, name) VALUES (gen_random_uuid(), $1)
-            VALUES ($1)
             RETURNING id
             """,
             name,
@@ -340,7 +339,6 @@ class IngestionService:
         discipline = await conn.fetchrow(
             """
             INSERT INTO discipline (id, modality_id, name) VALUES (gen_random_uuid(), $1, $2)
-            VALUES ($1, $2)
             RETURNING id
             """,
             modality_id,
@@ -362,7 +360,6 @@ class IngestionService:
         year_record = await conn.fetchrow(
             """
             INSERT INTO competition_year (id, year, is_current) VALUES (gen_random_uuid(), $1, $2)
-            VALUES ($1, $2)
             RETURNING id
             """,
             year,
