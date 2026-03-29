@@ -317,7 +317,7 @@ class IngestionService:
 
         modality = await conn.fetchrow(
             """
-            INSERT INTO modality (name)
+            INSERT INTO modality (id, name) VALUES (gen_random_uuid(),
             VALUES ($1)
             RETURNING id
             """,
@@ -339,7 +339,7 @@ class IngestionService:
 
         discipline = await conn.fetchrow(
             """
-            INSERT INTO discipline (modality_id, name)
+            INSERT INTO discipline (id, modality_id, name) VALUES (gen_random_uuid(),
             VALUES ($1, $2)
             RETURNING id
             """,
@@ -361,7 +361,7 @@ class IngestionService:
         current_year = datetime.now().year
         year_record = await conn.fetchrow(
             """
-            INSERT INTO competition_year (year, is_current)
+            INSERT INTO competition_year (id, year, is_current) VALUES (gen_random_uuid(),
             VALUES ($1, $2)
             RETURNING id
             """,
@@ -408,7 +408,7 @@ class IngestionService:
 
         game = await conn.fetchrow(
             """
-            INSERT INTO game (
+            INSERT INTO game (id, 
                 competition_id, player1_id, player2_id,
                 start_date, status, source_id, external_id,
                 scraped_from_url, score_complete, winner_id,
@@ -435,7 +435,7 @@ class IngestionService:
         raw_score = str(game_data.get("raw_score", ""))[:50]
         await conn.execute(
             """
-            INSERT INTO game_score (game_id, raw_score)
+            INSERT INTO game_score (id, game_id, raw_score)
             VALUES ($1, $2)
             """,
             game["id"],
@@ -577,7 +577,7 @@ class IngestionService:
         # Create new player
         player = await conn.fetchrow(
             """
-            INSERT INTO player (first_name, last_name, nickname, license, is_active)
+            INSERT INTO player (id, first_name, last_name, nickname, license, is_active)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING id
             """,
