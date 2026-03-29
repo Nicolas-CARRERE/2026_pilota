@@ -288,7 +288,7 @@ class IngestionService:
     ) -> str:
         """Get or create organizer record."""
         existing = await conn.fetchrow(
-            "SELECT id FROM organizer WHERE name = $1", name
+            "SELECT id FROM "Organizer" WHERE name = $1", name
         )
         if existing:
             return existing["id"]
