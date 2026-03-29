@@ -411,7 +411,7 @@ class IngestionService:
                 scraped_from_url, score_complete, winner_id,
                 notes, phase
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             RETURNING id
             """,
             competition_id,
@@ -432,8 +432,8 @@ class IngestionService:
         raw_score = str(game_data.get("raw_score", ""))[:50]
         await conn.execute(
             """
-            INSERT INTO game_score (id, game_id, raw_score)
-            VALUES ($1, $2)
+            INSERT INTO game_score (id, game_id, raw_score) VALUES (gen_random_uuid(), $1, $2)
+            RETURNING id
             """,
             game["id"],
             raw_score,
