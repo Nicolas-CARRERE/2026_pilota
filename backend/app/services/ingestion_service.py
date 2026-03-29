@@ -163,11 +163,11 @@ class IngestionService:
             competition = await conn.fetchrow(
                 """
                 INSERT INTO competition (
-                    organizer_id, discipline_id, year_id,
+                    id, organizer_id, discipline_id, year_id,
                     start_date, end_date, status,
                     discipline, season, year, series, "group", pool, organization
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 RETURNING id
                 """,
                 organizer_id,
@@ -385,10 +385,9 @@ class IngestionService:
             game_data.get("status", ""), game_data.get("raw_score", "")
         )
 
-        # Get winner
-        winner_id = None  # Would need player lookup
-        if score_complete:
-            winner_id = self._get_winner_from_score(game_data.get("raw_score", ""))
+        # Get winner - we can't determine winner UUID yet without proper player matching
+        # For now, leave winner_id as NULL until player resolution is implemented
+        winner_id = None
 
         # Get or create players
         player1_id = await self._get_or_create_player_from_data(
@@ -575,7 +574,7 @@ class IngestionService:
         player = await conn.fetchrow(
             """
             INSERT INTO player (id, first_name, last_name, nickname, license, is_active)
-            VALUES ($1, $2, $3, $4, $5)
+            VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
             RETURNING id
             """,
             first_name or "Inconnu",
@@ -598,7 +597,7 @@ class IngestionService:
 
         source = await conn.fetchrow(
             """
-            INSERT INTO source (name, url, is_active)
+            INSERT INTO source (id, name, url, is_active)
             VALUES (gen_random_uuid(), $1, $2, $3)
             RETURNING id
             """,
