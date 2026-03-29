@@ -295,8 +295,8 @@ class IngestionService:
 
         organizer = await conn.fetchrow(
             """
-            INSERT INTO "Organizer" (name, type, is_active)
-            VALUES ($1, $2, $3)
+            INSERT INTO "Organizer" (id, name, type, is_active)
+            VALUES (gen_random_uuid(), $1, $2, $3)
             RETURNING id
             """,
             name,
@@ -602,7 +602,7 @@ class IngestionService:
         source = await conn.fetchrow(
             """
             INSERT INTO source (name, url, is_active)
-            VALUES ($1, $2, $3)
+            VALUES (gen_random_uuid(), $1, $2, $3)
             RETURNING id
             """,
             "CTPB",
