@@ -28,7 +28,12 @@ async def scrape_club_engagements(club_name: str) -> List[Dict[str, str]]:
     logger.info("Scraping engagements for club %s: %s", club_name, url)
     
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        # CTPB requires session cookies - first visit main site, then engagements
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            # First hit the main site to establish session
+            await client.get('https://ctpb.euskalpilota.fr')
+            
+            # Now fetch engagements
             response = await client.get(url)
             response.raise_for_status()
             html = response.text

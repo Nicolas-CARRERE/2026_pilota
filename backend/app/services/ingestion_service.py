@@ -312,6 +312,7 @@ class IngestionService:
 
             # Try to find existing competition with same key fields
             # Handle NULL/empty values properly - NULL != NULL in SQL
+            # Must match on ALL granular fields including season and year
             existing = await conn.fetchrow(
                 """
                 SELECT id FROM competition
@@ -322,6 +323,8 @@ class IngestionService:
                   AND (series = $5 OR (series IS NULL AND $5 IS NULL))
                   AND ("group" = $6 OR ("group" IS NULL AND $6 IS NULL))
                   AND (pool = $7 OR (pool IS NULL AND $7 IS NULL))
+                  AND (season = $8 OR (season IS NULL AND $8 IS NULL))
+                  AND year = $9
                 """,
                 organizer_id,
                 discipline_id,
@@ -330,6 +333,8 @@ class IngestionService:
                 series if series else None,
                 group if group else None,
                 pool if pool else None,
+                season if season else None,
+                year,
             )
 
             if existing:
