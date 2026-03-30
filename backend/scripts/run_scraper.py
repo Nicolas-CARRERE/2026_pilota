@@ -68,16 +68,17 @@ async def main():
         action="store_true",
         help="Update fixtures from live scrape, then exit",
     )
+    # Deprecated flags (kept for backward compatibility, now automatic)
     parser.add_argument(
         "--use-html-fixture",
         action="store_true",
-        help="Use HTML fixture instead of JSON fixtures (for testing HTML parser)",
+        help="Deprecated: HTML parsing is now automatic",
     )
     parser.add_argument(
         "--html-fixture",
         type=str,
         default="tests/fixtures/ctpb/competition_20260104.html",
-        help="Path to HTML fixture file",
+        help="Deprecated: HTML fixture path (no longer used)",
     )
     args = parser.parse_args()
 
@@ -132,37 +133,7 @@ async def main():
             print(f"   💡 Run with --update-fixtures first to create fixtures")
             return
     
-    # Handle HTML fixture mode (new HTML parser testing)
-    if args.use_html_fixture:
-        print("📄 Using HTML fixture for parser testing...")
-        try:
-            parsed = load_html_fixture(args.html_fixture)
-            games = parsed.get("games", [])
-            metadata = {k: v for k, v in parsed.items() if k != "games"}
-            
-            print(f"   📦 Games found: {len(games)}")
-            
-            # Show metadata
-            print(f"   📋 Competition metadata:")
-            for key, value in metadata.items():
-                if key != "championship_text":
-                    print(f"      - {key}: {value}")
-            
-            if args.ingest and games:
-                print(f"   📦 Ingesting {len(games)} games...")
-                from app.services.ingestion_service import ingest_scraped_games
-                ingest_result = await ingest_scraped_games(games)
-                print(f"      - Competitions created: {ingest_result.get('competitions_created', 0)}")
-                print(f"      - Games created: {ingest_result.get('games_created', 0)}")
-                print(f"      - Games updated: {ingest_result.get('games_updated', 0)}")
-            
-            print(f"\n✅ HTML fixture test complete!")
-            return
-        except FileNotFoundError as e:
-            print(f"   ❌ {e}")
-            return
-    
-    # Default: live scraping mode
+    # Default: live scraping mode with automatic player scraping
     competitions = args.url or [
         "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
         "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260104&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
@@ -171,10 +142,13 @@ async def main():
     print(f"🚀 Starting scraper for {len(competitions)} competitions...")
     if args.ingest:
         print("📦 Will ingest results into database after scraping")
+        print("👤 Will automatically scrape player rosters from engagements.php")
     
     total_games = 0
     total_competitions = set()
+    all_games = []
     
+    # Step 1: Scrape competitions
     for url in competitions:
         print(f"\n📊 Scraping: {url[:100]}...")
         result = await scrape_url(url)
@@ -187,28 +161,86 @@ async def main():
                 games_count = len(games) if isinstance(games, list) else 0
                 print(f"   Games found: {games_count}")
                 total_games += games_count
+                all_games.extend(games)
                 
                 # Extract competition info from discipline_context
                 if isinstance(games, list) and games:
                     for game in games:
                         if "discipline_context" in game:
                             total_competitions.add(game["discipline_context"])
-                
-                if args.ingest and games:
-                    print(f"   📦 Ingesting {games_count} games...")
-                    from app.services.ingestion_service import ingest_scraped_games
-                    ingest_result = await ingest_scraped_games(games)
-                    print(f"      - Competitions created: {ingest_result.get('competitions_created', 0)}")
-                    print(f"      - Games created: {ingest_result.get('games_created', 0)}")
-                    print(f"      - Games updated: {ingest_result.get('games_updated', 0)}")
         elif result.errors:
             print(f"   ❌ Errors: {result.errors}")
+    
+    # Step 2: Extract unique clubs and scrape player rosters (only if ingesting)
+    players_created = 0
+    if args.ingest and all_games:
+        # Extract unique club names from games
+        unique_clubs = set()
+        for game in all_games:
+            club1 = game.get("club1_name", "") or game.get("club1", "")
+            club2 = game.get("club2_name", "") or game.get("club2", "")
+            if club1:
+                unique_clubs.add(club1)
+            if club2:
+                unique_clubs.add(club2)
+        
+        print(f"\n👤 Found {len(unique_clubs)} unique clubs")
+        print(f"   Scraping player rosters from engagements.php...")
+        
+        # Import engagements scraper
+        from app.services.engagements_scraper import scrape_club_engagements
+        from app.services.ingestion_service import IngestionService
+        
+        # Create ingestion service to access player creation
+        service = IngestionService()
+        await service.connect()
+        
+        async with service._pool.acquire() as conn:
+            for club_name in unique_clubs:
+                # Try to get club ID from database
+                club_record = await conn.fetchrow(
+                    "SELECT id FROM club WHERE name = $1", club_name
+                )
+                
+                if not club_record:
+                    # Club doesn't exist yet, will be created during game ingestion
+                    continue
+                
+                club_id = club_record["id"]
+                
+                # Scrape engagements for this club
+                players = await scrape_club_engagements(club_id)
+                
+                if players:
+                    print(f"   - {club_name}: {len(players)} players")
+                    for player_data in players:
+                        await service._get_or_create_player(
+                            conn,
+                            player_data['first_name'],
+                            player_data['last_name'],
+                            None,  # external_id
+                            player_data['license']
+                        )
+                        players_created += 1
+        
+        await service.disconnect()
+        print(f"   ✅ Players created: {players_created}")
+    
+    # Step 3: Ingest games (if requested)
+    if args.ingest and all_games:
+        print(f"\n📦 Ingesting {len(all_games)} games...")
+        from app.services.ingestion_service import ingest_scraped_games
+        ingest_result = await ingest_scraped_games(all_games)
+        print(f"   - Competitions created: {ingest_result.get('competitions_created', 0)}")
+        print(f"   - Games created: {ingest_result.get('games_created', 0)}")
+        print(f"   - Games updated: {ingest_result.get('games_updated', 0)}")
     
     print(f"\n✅ Scraper finished!")
     print(f"   Total games: {total_games}")
     print(f"   Total competitions: {len(total_competitions)}")
     if args.ingest:
-        print(f"   All games ingested into database")
+        print(f"   Players created: {players_created}")
+        print(f"   All data ingested into database")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -43,6 +43,140 @@ class IngestionService:
             await self._pool.close()
             logger.info("Database connection pool closed")
 
+    async def ingest_all_with_players(
+        self,
+        competitions: List[Dict[str, Any]],
+        scrape_players: bool = True,
+    ) -> Dict[str, int]:
+        """
+        Full pipeline: scrape players from engagements.php, then ingest games.
+
+        Args:
+            competitions: List of competition data from scraper (with games)
+            scrape_players: Whether to scrape player rosters (default True)
+
+        Returns:
+            Dict with counts: players_created, competitions_created,
+            games_created, games_updated
+        """
+        if not self._pool:
+            await self.connect()
+
+        players_created = 0
+        competitions_created = 0
+        games_created = 0
+        games_updated = 0
+
+        # Extract all games from competitions
+        all_games = []
+        for comp in competitions:
+            games = comp.get("games", [])
+            if isinstance(games, list):
+                all_games.extend(games)
+
+        # Extract unique clubs from games
+        unique_clubs = set()
+        for game in all_games:
+            club1 = game.get("club1_name", "") or game.get("club1", "")
+            club2 = game.get("club2_name", "") or game.get("club2", "")
+            if club1:
+                unique_clubs.add(club1)
+            if club2:
+                unique_clubs.add(club2)
+
+        async with self._pool.acquire() as conn:
+            # Step 1: Scrape and ingest players for each club
+            if scrape_players and unique_clubs:
+                logger.info("Scraping player rosters for %d clubs", len(unique_clubs))
+                
+                from app.services.engagements_scraper import scrape_club_engagements
+                
+                for club_name in unique_clubs:
+                    # Get club ID from database
+                    club_record = await conn.fetchrow(
+                        "SELECT id FROM club WHERE name = $1", club_name
+                    )
+                    
+                    if not club_record:
+                        # Club doesn't exist yet, will be created during game ingestion
+                        continue
+                    
+                    club_id = club_record["id"]
+                    
+                    # Scrape engagements for this club
+                    players = await scrape_club_engagements(club_id)
+                    
+                    if players:
+                        logger.debug(
+                            "Club %s: found %d players",
+                            club_name, len(players)
+                        )
+                        for player_data in players:
+                            await self._get_or_create_player(
+                                conn,
+                                player_data['first_name'],
+                                player_data['last_name'],
+                                None,  # external_id
+                                player_data['license']
+                            )
+                            players_created += 1
+
+            # Step 2: Ingest games (with real player links)
+            for game_data in all_games:
+                # Check if game has pre-parsed fields from HTML parser
+                pre_parsed = None
+                discipline_val = game_data.get("discipline", "")
+                series_val = game_data.get("series", "")
+                group_val = game_data.get("group", "")
+                pool_val = game_data.get("pool", "")
+                
+                has_granular_data = (
+                    (discipline_val and isinstance(discipline_val, str) and discipline_val.strip()) or
+                    (series_val and isinstance(series_val, str) and series_val.strip()) or
+                    (group_val and isinstance(group_val, str) and group_val.strip()) or
+                    (pool_val and isinstance(pool_val, str) and pool_val.strip())
+                )
+                
+                if has_granular_data:
+                    pre_parsed = {
+                        "discipline": (discipline_val or "").strip() or None,
+                        "group": (group_val or "").strip() or None,
+                        "series": (series_val or "").strip() or None,
+                        "pool": (pool_val or "").strip() or None,
+                        "season": game_data.get("season", "").strip() if game_data.get("season") else None,
+                        "year": game_data.get("year"),
+                        "organization": (game_data.get("organization") or "CTPB").strip(),
+                    }
+                
+                # Parse and create/find competition
+                competition_id = await self.parse_and_create_competition(
+                    conn, game_data.get("discipline_context", ""), pre_parsed
+                )
+                if competition_id:
+                    competitions_created += 1
+
+                # Create/update game
+                result = await self.create_game(conn, game_data, competition_id)
+                if result == "created":
+                    games_created += 1
+                elif result == "updated":
+                    games_updated += 1
+
+        logger.info(
+            "Ingestion complete: %d players, %d competitions, %d games created, %d games updated",
+            players_created,
+            competitions_created,
+            games_created,
+            games_updated,
+        )
+
+        return {
+            "players_created": players_created,
+            "competitions_created": competitions_created,
+            "games_created": games_created,
+            "games_updated": games_updated,
+        }
+
     async def ingest_scraped_games(self, games: List[Dict[str, Any]]) -> Dict[str, int]:
         """
         Main ingestion function - process all scraped games.
