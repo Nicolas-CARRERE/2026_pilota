@@ -133,3 +133,17 @@ class TestIngestionServiceMocked:
         # Verify competition was created with correct fields
         assert comp_id == "comp-uuid"
         assert mock_conn.fetchrow.called
+    
+    def test_competition_count_current_behavior(self):
+        """
+        Document current competition creation behavior.
+        
+        CURRENT: Creates one competition per game (7592 competitions)
+        EXPECTED: Group by discipline/series/group/pool (~39 competitions)
+        
+        TODO: Should group by discipline/series/group/pool → ~39 competitions
+        Tracking issue: Competition matching query not finding existing competitions
+        """
+        # This test documents the current behavior that needs fixing
+        # The actual fix will be in ingestion_service.py competition matching logic
+        pass

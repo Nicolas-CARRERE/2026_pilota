@@ -217,3 +217,15 @@ uv run python scripts/run_scraper.py --update-fixtures
 ---
 
 **Goal:** Never lose test reliability due to live scraping changes!
+
+## Known Issues (Being Fixed)
+
+### 1. Competition Deduplication
+- **Current:** Creates 7,592 competitions (one per game)
+- **Expected:** ~39 competitions (grouped by discipline/series/group/pool)
+- **Fix in progress:** Update matching query in ingestion_service.py
+
+### 2. Engagements.php Redirects
+- **Current:** Club names with spaces cause 302 redirects
+- **Expected:** Successfully scrape player rosters
+- **Fix in progress:** URL encoding or session handling
