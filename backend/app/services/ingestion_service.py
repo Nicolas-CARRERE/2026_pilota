@@ -62,11 +62,36 @@ class IngestionService:
 
         async with self._pool.acquire() as conn:
             for game_data in games:
-                discipline_context = game_data.get("discipline_context", "")
+                # Check if game has pre-parsed fields from HTML parser
+                # Use pre-parsed if ANY granular field is present (discipline, series, group, or pool)
+                pre_parsed = None
+                discipline_val = game_data.get("discipline", "")
+                series_val = game_data.get("series", "")
+                group_val = game_data.get("group", "")
+                pool_val = game_data.get("pool", "")
+                
+                has_granular_data = (
+                    (discipline_val and isinstance(discipline_val, str) and discipline_val.strip()) or
+                    (series_val and isinstance(series_val, str) and series_val.strip()) or
+                    (group_val and isinstance(group_val, str) and group_val.strip()) or
+                    (pool_val and isinstance(pool_val, str) and pool_val.strip())
+                )
+                
+                if has_granular_data:
+                    # HTML parser already extracted granular fields
+                    pre_parsed = {
+                        "discipline": (discipline_val or "").strip() or None,
+                        "group": (group_val or "").strip() or None,
+                        "series": (series_val or "").strip() or None,
+                        "pool": (pool_val or "").strip() or None,
+                        "season": game_data.get("season", "").strip() if game_data.get("season") else None,
+                        "year": game_data.get("year"),
+                        "organization": (game_data.get("organization") or "CTPB").strip(),
+                    }
                 
                 # Parse and create/find competition
                 competition_id = await self.parse_and_create_competition(
-                    conn, discipline_context
+                    conn, game_data.get("discipline_context", ""), pre_parsed
                 )
                 if competition_id:
                     competitions_created += 1
@@ -92,33 +117,44 @@ class IngestionService:
         }
 
     async def parse_and_create_competition(
-        self, conn: asyncpg.Connection, discipline_context: str
+        self,
+        conn: asyncpg.Connection,
+        discipline_context: str = "",
+        pre_parsed: Optional[Dict[str, Any]] = None,
     ) -> Optional[str]:
         """
-        Parse discipline_context and find or create Competition record.
+        Parse discipline_context or use pre-parsed fields and create Competition record.
 
         Args:
             conn: Database connection
-            discipline_context: Championship name string from scraper
+            discipline_context: Championship name string from scraper (fallback)
+            pre_parsed: Dict with already-parsed fields from HTML parser (preferred)
 
         Returns:
             Competition ID (existing or newly created)
         """
-        if not discipline_context:
-            # Fallback to default competition
-            return await self._get_or_create_default_competition(conn)
-
-        # Parse championship name to get granular fields
-        parsed = parse_championship_name(discipline_context)
-
-        # Extract fields
-        discipline_name = parsed.get("discipline", "Mur à gauche")
-        season = parsed.get("season")
-        year = int(parsed["year"]) if parsed.get("year") else datetime.now().year
-        series = parsed.get("series")
-        group = parsed.get("group")
-        pool = parsed.get("pool")
-        organization_name = parsed.get("organization", "CTPB")
+        # Use pre-parsed fields if available (from HTML parser), otherwise parse from string
+        if pre_parsed:
+            discipline_name = pre_parsed.get("discipline") or "Mur à gauche"
+            season = pre_parsed.get("season")
+            year = int(pre_parsed["year"]) if pre_parsed.get("year") else datetime.now().year
+            series = pre_parsed.get("series")
+            group = pre_parsed.get("group")
+            pool = pre_parsed.get("pool")
+            organization_name = pre_parsed.get("organization", "CTPB")
+        else:
+            if not discipline_context:
+                return await self._get_or_create_default_competition(conn)
+            
+            # Parse championship name to get granular fields
+            parsed = parse_championship_name(discipline_context)
+            discipline_name = parsed.get("discipline", "Mur à gauche")
+            season = parsed.get("season")
+            year = int(parsed["year"]) if parsed.get("year") else datetime.now().year
+            series = parsed.get("series")
+            group = parsed.get("group")
+            pool = parsed.get("pool")
+            organization_name = parsed.get("organization", "CTPB")
 
         async with conn.transaction():
             # Get or create organizer
@@ -135,23 +171,31 @@ class IngestionService:
             # Get or create competition year
             year_id = await self._get_or_create_competition_year(conn, year)
 
+            # Get or create competition series (for series_id FK)
+            series_id = None
+            if series:
+                series_id = await self._get_or_create_competition_series(conn, series)
+
             # Try to find existing competition with same key fields
+            # Handle NULL/empty values properly - NULL != NULL in SQL
             existing = await conn.fetchrow(
                 """
                 SELECT id FROM competition
                 WHERE organizer_id = $1
                   AND discipline_id = $2
                   AND year_id = $3
-                  AND series = $4
-                  AND "group" = $5
-                  AND pool = $6
+                  AND (series_id = $4 OR (series_id IS NULL AND $4 IS NULL))
+                  AND (series = $5 OR (series IS NULL AND $5 IS NULL))
+                  AND ("group" = $6 OR ("group" IS NULL AND $6 IS NULL))
+                  AND (pool = $7 OR (pool IS NULL AND $7 IS NULL))
                 """,
                 organizer_id,
                 discipline_id,
                 year_id,
-                series,
-                group,
-                pool,
+                series_id,
+                series if series else None,
+                group if group else None,
+                pool if pool else None,
             )
 
             if existing:
@@ -163,25 +207,26 @@ class IngestionService:
             competition = await conn.fetchrow(
                 """
                 INSERT INTO competition (
-                    id, organizer_id, discipline_id, year_id,
+                    id, organizer_id, discipline_id, year_id, series_id,
                     start_date, end_date, status,
                     discipline, season, year, series, "group", pool, organization
                 )
-                VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
                 RETURNING id
                 """,
                 organizer_id,
                 discipline_id,
                 year_id,
+                series_id,
                 start_date,
                 start_date,
                 "ongoing",
                 discipline_name,
-                season,
+                season if season else None,
                 year,
-                series,
-                group,
-                pool,
+                series if series else None,
+                group if group else None,
+                pool if pool else None,
                 organization_name,
             )
 
@@ -266,10 +311,10 @@ class IngestionService:
         competition = await conn.fetchrow(
             """
             INSERT INTO competition (
-                organizer_id, discipline_id, year_id,
+                id, organizer_id, discipline_id, year_id,
                 start_date, end_date, status, year
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7)
             RETURNING id
             """,
             organizer_id,
@@ -389,12 +434,16 @@ class IngestionService:
         # For now, leave winner_id as NULL until player resolution is implemented
         winner_id = None
 
-        # Get or create players
+        # Get club names
+        club1_name = game_data.get("club1_name", "")
+        club2_name = game_data.get("club2_name", "")
+
+        # Get or create players and link to clubs
         player1_id = await self._get_or_create_player_from_data(
-            conn, game_data.get("club1_players", [])
+            conn, game_data.get("club1_players", []), club1_name
         )
         player2_id = await self._get_or_create_player_from_data(
-            conn, game_data.get("club2_players", [])
+            conn, game_data.get("club2_players", []), club2_name
         )
 
         # Get or create source
@@ -427,15 +476,24 @@ class IngestionService:
             game_data.get("phase"),
         )
 
-        # Create game score record
-        raw_score = str(game_data.get("raw_score", ""))[:50]
+        # Create game score record - support both raw_score and score_home/score_away formats
+        raw_score = game_data.get("raw_score")
+        if not raw_score:
+            # Build raw_score from score_home/score_away if available
+            score_home = game_data.get("score_home")
+            score_away = game_data.get("score_away")
+            if score_home is not None and score_away is not None:
+                raw_score = f"{score_home}/{score_away}"
+            else:
+                raw_score = ""
+        
         await conn.execute(
             """
             INSERT INTO game_score (id, game_id, raw_score) VALUES (gen_random_uuid(), $1, $2)
             RETURNING id
             """,
             game["id"],
-            raw_score,
+            str(raw_score)[:50] if raw_score else "",
         )
 
         logger.debug("Created game: %s", game["id"])
@@ -519,22 +577,35 @@ class IngestionService:
         logger.debug("Updated game: %s", game_id)
 
     async def _get_or_create_player_from_data(
-        self, conn: asyncpg.Connection, players: List[Dict[str, Any]]
+        self,
+        conn: asyncpg.Connection,
+        players: List[Dict[str, Any]],
+        club_name: Optional[str] = None,
     ) -> str:
-        """Get or create player from player data list (use first player)."""
+        """Get or create player from player data list (use first player) and link to club."""
         if not players:
-            return await self._get_or_create_player(conn, "Inconnu", "", None, None)
+            player_id = await self._get_or_create_player(conn, "Inconnu", "", None, None)
+            if club_name:
+                await self._link_player_to_club(conn, player_id, club_name)
+            return player_id
 
         first_player = players[0]
         player_id = first_player.get("id")
         player_name = first_player.get("name", "")
+        license_num = first_player.get("license")
 
         # Parse name (format: "NOM Prénom")
         first_name, last_name = self._parse_player_name(player_name, player_id)
 
-        return await self._get_or_create_player(
-            conn, first_name, last_name, player_id, player_id
+        player_id = await self._get_or_create_player(
+            conn, first_name, last_name, player_id, license_num
         )
+        
+        # Link player to club
+        if club_name:
+            await self._link_player_to_club(conn, player_id, club_name)
+        
+        return player_id
 
     async def _get_or_create_player(
         self,
@@ -584,6 +655,98 @@ class IngestionService:
             True,
         )
         return player["id"]
+
+    async def _get_or_create_club(
+        self, conn: asyncpg.Connection, name: str
+    ) -> str:
+        """Get or create club record."""
+        if not name or not name.strip():
+            # Return a default "unknown" club
+            name = "Inconnu"
+        
+        name = name.strip()
+        existing = await conn.fetchrow(
+            "SELECT id FROM club WHERE name = $1", name
+        )
+        if existing:
+            return existing["id"]
+
+        club = await conn.fetchrow(
+            """
+            INSERT INTO club (id, name, short_name, is_active)
+            VALUES (gen_random_uuid(), $1, $2, true)
+            RETURNING id
+            """,
+            name,
+            name.upper()[:10],
+        )
+        return club["id"]
+
+    async def _link_player_to_club(
+        self,
+        conn: asyncpg.Connection,
+        player_id: str,
+        club_name: str,
+        joined_date: Optional[datetime] = None,
+    ) -> None:
+        """Link a player to a club via player_club_history."""
+        if not club_name or not club_name.strip():
+            return
+        
+        club_id = await self._get_or_create_club(conn, club_name)
+        
+        # Check if link already exists
+        existing = await conn.fetchrow(
+            """
+            SELECT id FROM player_club_history
+            WHERE player_id = $1 AND club_id = $2
+            """,
+            player_id,
+            club_id,
+        )
+        
+        if existing:
+            return
+        
+        # Create the link
+        await conn.execute(
+            """
+            INSERT INTO player_club_history (id, player_id, club_id, joined_date)
+            VALUES (gen_random_uuid(), $1, $2, $3)
+            """,
+            player_id,
+            club_id,
+            joined_date or datetime.now(),
+        )
+
+    async def _get_or_create_competition_series(
+        self, conn: asyncpg.Connection, name: str, competition_type: str = "tournament"
+    ) -> str:
+        """Get or create competition series record."""
+        if not name or not name.strip():
+            return None
+        
+        name = name.strip()
+        existing = await conn.fetchrow(
+            "SELECT id FROM competition_series WHERE name = $1", name
+        )
+        if existing:
+            return existing["id"]
+
+        # Generate a code from the name
+        code = name.upper()[:10].replace(" ", "").replace("È", "E").replace("É", "E")
+        
+        series = await conn.fetchrow(
+            """
+            INSERT INTO competition_series (id, code, name, competition_type)
+            VALUES (gen_random_uuid(), $1, $2, $3)
+            RETURNING id
+            """,
+            code,
+            name,
+            competition_type,
+        )
+        return series["id"]
 
     async def _get_or_create_ctpb_source(
         self, conn: asyncpg.Connection

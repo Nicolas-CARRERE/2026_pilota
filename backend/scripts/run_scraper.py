@@ -17,6 +17,7 @@ print(f"📄 Loaded .env from: {env_path}")
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.services.scraper import scrape_url
+from app.services.html_game_parser import parse_competition_html
 from app.config import get_settings
 
 # Fixture directory for testing
@@ -30,6 +31,19 @@ def load_fixtures() -> dict:
     
     with open(games_path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_html_fixture(fixture_path: str) -> dict:
+    """Load and parse HTML fixture for testing."""
+    html_path = Path(fixture_path)
+    if not html_path.exists():
+        raise FileNotFoundError(f"HTML fixture not found: {html_path}")
+    
+    print(f"📊 Parsing HTML fixture: {html_path.name}")
+    with open(html_path, "r", encoding="utf-8") as f:
+        html = f.read()
+    
+    return parse_competition_html(html)
 
 async def main():
     parser = argparse.ArgumentParser(description="Run CTPB scraper")
@@ -53,6 +67,17 @@ async def main():
         "--update-fixtures",
         action="store_true",
         help="Update fixtures from live scrape, then exit",
+    )
+    parser.add_argument(
+        "--use-html-fixture",
+        action="store_true",
+        help="Use HTML fixture instead of JSON fixtures (for testing HTML parser)",
+    )
+    parser.add_argument(
+        "--html-fixture",
+        type=str,
+        default="tests/fixtures/ctpb/competition_20260104.html",
+        help="Path to HTML fixture file",
     )
     args = parser.parse_args()
 
@@ -105,6 +130,36 @@ async def main():
         except FileNotFoundError as e:
             print(f"   ❌ {e}")
             print(f"   💡 Run with --update-fixtures first to create fixtures")
+            return
+    
+    # Handle HTML fixture mode (new HTML parser testing)
+    if args.use_html_fixture:
+        print("📄 Using HTML fixture for parser testing...")
+        try:
+            parsed = load_html_fixture(args.html_fixture)
+            games = parsed.get("games", [])
+            metadata = {k: v for k, v in parsed.items() if k != "games"}
+            
+            print(f"   📦 Games found: {len(games)}")
+            
+            # Show metadata
+            print(f"   📋 Competition metadata:")
+            for key, value in metadata.items():
+                if key != "championship_text":
+                    print(f"      - {key}: {value}")
+            
+            if args.ingest and games:
+                print(f"   📦 Ingesting {len(games)} games...")
+                from app.services.ingestion_service import ingest_scraped_games
+                ingest_result = await ingest_scraped_games(games)
+                print(f"      - Competitions created: {ingest_result.get('competitions_created', 0)}")
+                print(f"      - Games created: {ingest_result.get('games_created', 0)}")
+                print(f"      - Games updated: {ingest_result.get('games_updated', 0)}")
+            
+            print(f"\n✅ HTML fixture test complete!")
+            return
+        except FileNotFoundError as e:
+            print(f"   ❌ {e}")
             return
     
     # Default: live scraping mode
