@@ -4,9 +4,13 @@
 import argparse
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load .env file from backend directory
 env_path = Path(__file__).parent.parent / ".env"
@@ -171,7 +175,16 @@ async def main():
         elif result.errors:
             print(f"   ❌ Errors: {result.errors}")
     
-    # Step 2: Extract unique clubs and scrape player rosters (only if ingesting)
+    # Step 2: Ingest games first (creates clubs)
+    if args.ingest and all_games:
+        print(f"\n📦 Ingesting {len(all_games)} games...")
+        from app.services.ingestion_service import ingest_scraped_games
+        ingest_result = await ingest_scraped_games(all_games)
+        print(f"   - Competitions created: {ingest_result.get('competitions_created', 0)}")
+        print(f"   - Games created: {ingest_result.get('games_created', 0)}")
+        print(f"   - Games updated: {ingest_result.get('games_updated', 0)}")
+    
+    # Step 3: Extract unique clubs and scrape player rosters (only if ingesting)
     players_created = 0
     if args.ingest and all_games:
         # Extract unique club names from games
@@ -197,19 +210,19 @@ async def main():
         
         async with service._pool.acquire() as conn:
             for club_name in unique_clubs:
-                # Try to get club ID from database
+                # Get club ID from database (should exist after game ingestion)
                 club_record = await conn.fetchrow(
                     "SELECT id FROM club WHERE name = $1", club_name
                 )
                 
                 if not club_record:
-                    # Club doesn't exist yet, will be created during game ingestion
+                    logger.warning("Club not found after ingestion: %s", club_name)
                     continue
                 
                 club_id = club_record["id"]
                 
-                # Scrape engagements for this club
-                players = await scrape_club_engagements(club_id)
+                # Scrape engagements for this club (use club name as parameter)
+                players = await scrape_club_engagements(club_name)
                 
                 if players:
                     print(f"   - {club_name}: {len(players)} players")
@@ -225,15 +238,6 @@ async def main():
         
         await service.disconnect()
         print(f"   ✅ Players created: {players_created}")
-    
-    # Step 3: Ingest games (if requested)
-    if args.ingest and all_games:
-        print(f"\n📦 Ingesting {len(all_games)} games...")
-        from app.services.ingestion_service import ingest_scraped_games
-        ingest_result = await ingest_scraped_games(all_games)
-        print(f"   - Competitions created: {ingest_result.get('competitions_created', 0)}")
-        print(f"   - Games created: {ingest_result.get('games_created', 0)}")
-        print(f"   - Games updated: {ingest_result.get('games_updated', 0)}")
     
     print(f"\n✅ Scraper finished!")
     print(f"   Total games: {total_games}")

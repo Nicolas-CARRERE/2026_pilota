@@ -13,19 +13,19 @@ import httpx
 logger = logging.getLogger("pelota.engagements")
 
 
-async def scrape_club_engagements(club_id: str) -> List[Dict[str, str]]:
+async def scrape_club_engagements(club_name: str) -> List[Dict[str, str]]:
     """
     Scrape player roster for a club from engagements.php.
 
     Args:
-        club_id: Club identifier (used in URL parameter).
+        club_name: Club name (used in URL parameter).
 
     Returns:
         List of player dicts with 'license', 'first_name', 'last_name' keys.
     """
-    url = f"https://ctpb.euskalpilota.fr/engagements.php?club={club_id}"
+    url = f"https://ctpb.euskalpilota.fr/engagements.php?club={club_name}"
     
-    logger.info("Scraping engagements for club %s: %s", club_id, url)
+    logger.info("Scraping engagements for club %s: %s", club_name, url)
     
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -33,14 +33,14 @@ async def scrape_club_engagements(club_id: str) -> List[Dict[str, str]]:
             response.raise_for_status()
             html = response.text
     except httpx.HTTPError as e:
-        logger.error("Failed to fetch engagements for club %s: %s", club_id, e)
+        logger.error("Failed to fetch engagements for club %s: %s", club_name, e)
         return []
     except Exception as e:
-        logger.error("Unexpected error scraping club %s: %s", club_id, e)
+        logger.error("Unexpected error scraping club %s: %s", club_name, e)
         return []
     
     players = parse_engagements_html(html)
-    logger.info("Found %d players for club %s", len(players), club_id)
+    logger.info("Found %d players for club %s", len(players), club_name)
     
     return players
 
@@ -112,20 +112,20 @@ def parse_engagements_html_bs4(html: str) -> List[Dict[str, str]]:
     return players
 
 
-async def scrape_all_clubs_engagements(club_ids: List[str]) -> Dict[str, List[Dict[str, str]]]:
+async def scrape_all_clubs_engagements(club_names: List[str]) -> Dict[str, List[Dict[str, str]]]:
     """
     Scrape engagements for multiple clubs.
 
     Args:
-        club_ids: List of club identifiers.
+        club_names: List of club names.
 
     Returns:
-        Dict mapping club_id to list of players.
+        Dict mapping club_name to list of players.
     """
     all_players: Dict[str, List[Dict[str, str]]] = {}
     
-    for club_id in club_ids:
-        players = await scrape_club_engagements(club_id)
-        all_players[club_id] = players
+    for club_name in club_names:
+        players = await scrape_club_engagements(club_name)
+        all_players[club_name] = players
     
     return all_players
