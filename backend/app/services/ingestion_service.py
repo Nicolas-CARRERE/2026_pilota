@@ -732,9 +732,14 @@ class IngestionService:
         player_id = first_player.get("id")
         player_name = first_player.get("name", "")
         license_num = first_player.get("license")
-
-        # Parse name (format: "NOM Prénom")
-        first_name, last_name = self._parse_player_name(player_name, player_id)
+        
+        # Check if we already have first_name/last_name from parser (InSpec=0 format)
+        first_name = first_player.get("first_name")
+        last_name = first_player.get("last_name")
+        
+        # If not, parse from name field (old format: "NOM Prénom")
+        if not first_name or not last_name:
+            first_name, last_name = self._parse_player_name(player_name, player_id)
 
         player_id = await self._get_or_create_player(
             conn, first_name, last_name, player_id, license_num

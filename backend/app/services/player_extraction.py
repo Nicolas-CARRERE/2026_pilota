@@ -162,6 +162,7 @@ def _parse_club_name_and_players(cell) -> Tuple[str, List[Dict[str, str]]]:
     Extract club name and players from a club cell.
 
     Internal helper for backward compatibility with ctpb_parser.py.
+    Handles both old <li> format and new line-based format (InSpec=0).
 
     Args:
         cell: BeautifulSoup cell element.
@@ -172,6 +173,15 @@ def _parse_club_name_and_players(cell) -> Tuple[str, List[Dict[str, str]]]:
     if not cell:
         return "", []
     
+    # Try to extract players from <li> elements first (old format)
+    players = _parse_players_from_cell(cell)
+    
+    # If no players found via <li>, try line-based extraction (InSpec=0 format)
+    if not players:
+        club_name, players = _extract_players_from_club_cell_lines(cell)
+        return club_name, players
+    
+    # Extract club name (text before <li> elements or before <span class="small">)
     text_parts: List[str] = []
     for child in cell.children:
         if hasattr(child, "name") and child.name == "span" and "small" in (child.get("class") or []):
@@ -182,6 +192,58 @@ def _parse_club_name_and_players(cell) -> Tuple[str, List[Dict[str, str]]]:
             text_parts.append(child)
     
     club_name = "".join(text_parts).replace("\xa0", " ").strip()
-    players = _parse_players_from_cell(cell)
+    
+    return club_name, players
+
+
+def _extract_players_from_club_cell_lines(cell) -> Tuple[str, List[Dict[str, str]]]:
+    """
+    Extract club name and players from cell text lines (InSpec=0 format).
+    
+    Expected format:
+        AIRETIK (01)
+        (02930) JAUREGUIBERRY Iban
+        (072401) IRIBARREN Bastien
+    
+    Args:
+        cell: BeautifulSoup cell element.
+    
+    Returns:
+        Tuple of (club_name, players).
+    """
+    if not cell:
+        return "", []
+    
+    # Get full text content of the cell
+    full_text = cell.get_text()
+    lines = full_text.strip().split('\n')
+    
+    if not lines:
+        return "", []
+    
+    club_line = lines[0]
+    player_lines = lines[1:]
+    
+    # Extract club name (before the (XX))
+    club_match = re.match(r'(.+?)\s*\((\d+)\)', club_line)
+    club_name = club_match.group(1).strip() if club_match else club_line.strip()
+    
+    # Extract players from remaining lines
+    players = []
+    player_pattern = r'\((\d+)\)\s+([A-ZÀ-Ÿ]+)\s+([A-Z][a-zÀ-Ÿ]+)'
+    
+    for line in player_lines:
+        line = line.strip()
+        if not line:
+            continue
+        match = re.search(player_pattern, line)
+        if match:
+            license_num, last_name, first_name = match.groups()
+            players.append({
+                'license': license_num,
+                'name': f"{last_name} {first_name}",
+                'first_name': first_name,
+                'last_name': last_name
+            })
     
     return club_name, players

@@ -13,7 +13,7 @@ async def main():
     url = "https://ctpb.euskalpilota.fr/resultats.php"
     
     # Full form data
-    post_data = "InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
+    post_data = "InSel=&InCompet=20260102&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",

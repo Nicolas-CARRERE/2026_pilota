@@ -22,7 +22,7 @@ async def save_fixture(competition_value: str, competition_label: str):
     """Fetch and save HTML fixture for a competition."""
     url = "https://ctpb.euskalpilota.fr/resultats.php"
     
-    post_data = f"InSel=&InCompet={competition_value}&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
+    post_data = f"InSel=&InCompet={competition_value}&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",

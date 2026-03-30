@@ -56,7 +56,7 @@ def ensure_fixture_dirs():
 
 
 async def save_ctpb_fixtures(
-    url: str = "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
+    url: str = "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
 ) -> dict[str, Any]:
     """
     Scrape CTPB results page and save fixtures.
@@ -264,7 +264,7 @@ async def main():
     if args.update:
         if args.update == "ctpb":
             logger.info("🔄 Updating CTPB fixtures...")
-            url = args.url or "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
+            url = args.url or "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats"
             result = await save_ctpb_fixtures(url)
             print(f"\n✅ CTPB fixtures updated: {result}")
         elif args.update == "ffpb":

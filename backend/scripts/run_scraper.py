@@ -94,7 +94,7 @@ async def main():
         print("🔄 Updating fixtures from live scrape...")
         from scripts.save_fixtures import save_ctpb_fixtures
         competitions = args.url or [
-            "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
+            "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
         ]
         result = await save_ctpb_fixtures(competitions[0])
         if result.get("status") == "success":
@@ -139,8 +139,8 @@ async def main():
     
     # Default: live scraping mode with automatic player scraping
     competitions = args.url or [
-        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
-        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260104&InSpec=11&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
+        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260102&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
+        "https://ctpb.euskalpilota.fr/resultats.php?InSel=&InCompet=20260104&InSpec=0&InVille=&InClub=&InDate=&InDatef=&InCat=0&InPhase=0&InVoir=Voir+les+r%C3%A9sultats",
     ]
     
     print(f"🚀 Starting scraper for {len(competitions)} competitions...")
